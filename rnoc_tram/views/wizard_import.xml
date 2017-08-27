@@ -1,0 +1,37 @@
+<openerp>
+  <data>
+       <record id="import_site" model="ir.ui.view">
+            <field name="name">Import site Translation</field>
+            <field name="model">rnoc.tram.import.site</field>
+            <field name="arch" type="xml">
+                <form string="Import Translation">
+                    <group>
+                    <field name="data"></field>
+                    <field name="is_existing_file"></field>
+                    </group>
+                    <footer>
+                        <button name="import_site" string="_Import" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_import_site" model="ir.actions.act_window">
+            <field name="name">Import Site</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">rnoc.tram.import.site</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem
+        action="action_import_site"
+        id="menu_view_base_import_language"
+        parent="rnoc_tram.menu_2"/>
+        
+        
+        
+  </data>
+</openerp>

@@ -1,0 +1,9 @@
+.o_form_statusbar{
+    position: fixed !important;
+    z-index: 999 !important;
+    width: 100% !important;
+}
+
+.o_form_sheet{
+    margin-top: 40px !important;
+}

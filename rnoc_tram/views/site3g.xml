@@ -1,0 +1,151 @@
+<openerp>
+    <data>
+        <!-- explicit list view definition
+        <record model="ir.ui.view" id="rnoc_tram.site3g_form">
+            <field name="name">site3g form</field>
+            <field name="model">tram3g</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" />
+                        <field name="active_site" />
+                        <field name="nha_tram_id" />
+                        <field name="des" />
+                    </group>
+                </form>
+            </field>
+        </record>
+         -->
+        <record model="ir.ui.view" id="rnoc_tram.site3g_list">
+            <field name="name">site3g list</field>
+            <field name="model">tram3g</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" />
+                    <field name="active_site" />
+                    <field name="des" />
+                    <field name="nha_tram_id" />
+                </tree>
+            </field>
+        </record>
+        <record id="rnoc_tram.tram3g_search" model="ir.ui.view">
+            <field name="name">tram 3g search </field>
+            <field name="model">tram3g</field>
+            <field name="arch" type="xml">
+                <search string="Search Sales Order">
+                    <field name="name" />
+                    <field name="des" />
+                    <field name="nha_tram_id" />
+                    <filter name="activesite" domain="[('active_site','=',True)]"></filter>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="rnoc_tram.site3g_action">
+            <field name="name">tram3g</field>
+            <field name="res_model">tram3g</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem name="Trạm 3G" id="rnoc_tram.site_3g_menu" parent="rnoc_tram.menu_1" action="rnoc_tram.site3g_action" />
+        <!-- rnoc.tram.object  -->
+        <record model="ir.ui.view" id="rnoc_tram.object_trucca_form">
+            <field name="name">object truc ca</field>
+            <field name="model">rnoc.tram.object</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" />
+                        <field name="object_relate" />
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="rnoc_tram.trucca_object_list">
+            <field name="name">rnoc.tram.object</field>
+            <field name="model">rnoc.tram.object</field>
+            <field name="arch" type="xml">
+                <tree>
+                   
+                    <field name="object_relate" widget = "many2many_tags"/>
+                    <field name="id" />
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+        <record id="rnoc_tram.truc_ca_object_search" model="ir.ui.view">
+            <field name="name">truc ca search </field>
+            <field name="model">rnoc.tram.object</field>
+            <field name="arch" type="xml">
+                <search string="Search Sales Order">
+                    <field name="object_relate" />
+                    <field name="id" />
+                </search>
+            </field>
+        </record>
+        <menuitem name="Object" id="rnoc_tram.trucca_object_menu" parent="rnoc_tram.menu_1" action="rnoc_tram.trucca_object_action" />
+        <!--  -->
+        
+        
+        <record model="ir.ui.view" id="rnoc_tram.trucca_list">
+            <field name="name">trucca list</field>
+            <field name="model">truc.ca</field>
+            <field name="arch" type="xml">
+                <tree>
+                	<field name = "name"></field>
+                    <field name="tram_3g_ids" widget = "many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="rnoc_tram.tram_action">
+            <field name="name">tram</field>
+            <field name="res_model">tram</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="rnoc_tram.tram2g_action">
+            <field name="name">tram 2g</field>
+            <field name="res_model">tram2g</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="rnoc_tram.trucca_action">
+            <field name="name">truc ca</field>
+            <field name="res_model">truc.ca</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="rnoc_tram.trucca_object_action">
+            <field name="name">rnoc tram object</field>
+            <field name="res_model">rnoc.tram.object</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="rnoc_tram.truc_ca_search" model="ir.ui.view">
+            <field name="name">truc ca search</field>
+            <field name="model">truc.ca</field>
+            <field name="arch" type="xml">
+                <search string="Search Sales Order">
+                </search>
+            </field>
+        </record>
+        <!-- server action to the one above -->
+        <!--
+    <record model="ir.actions.server" id="rnoc_tram.action_server">
+      <field name="name">rnoc_tram server</field>
+      <field name="model_id" ref="model_rnoc_tram_rnoc_tram"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+        <!-- Top menu item -->
+        <menuitem name="Trạm" id="rnoc_tram.menu_root" />
+        <!-- menu categories -->
+        <menuitem name="Loại Trạm" id="rnoc_tram.menu_1" parent="rnoc_tram.menu_root" />
+        <menuitem name="Setting" id="rnoc_tram.menu_2" parent="rnoc_tram.menu_root" />
+        <!-- actions -->
+        <menuitem name="Trạm" id="rnoc_tram.site" parent="rnoc_tram.menu_1" action="rnoc_tram.tram_action" />
+        <menuitem name="Trạm 2G" id="rnoc_tram.site_2g_menu" parent="rnoc_tram.menu_1" action="rnoc_tram.tram2g_action" />
+        <menuitem name="Truc ca" id="rnoc_tram.trucca_menu" parent="rnoc_tram.menu_1" action="rnoc_tram.trucca_action" />
+    </data>
+</openerp>

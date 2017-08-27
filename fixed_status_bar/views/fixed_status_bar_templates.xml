@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <template id="assets_backend" name="fixed_status_bar assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/fixed_status_bar/static/src/css/style.css"/>
+                <script type="text/javascript" src="/fixed_status_bar/static/lib/stickytableheaders/jquery.stickytableheaders.js"></script>
+                <script type="text/javascript" src="/fixed_status_bar/static/src/js/freeze_list_view_header.js"></script>
+                <script type="text/javascript" src="/fixed_status_bar/static/src/js/popup_yes_no.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

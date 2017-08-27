@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+      <record model = "ir.ui.view" id = "sale_order_inherit_in_openacademy">
+          <field name = "name">sale_order_inherit_in_openacademy</field>
+          <field name = "model">sale.order</field>
+<!--           <field name = "inherit_id" ref = "cb_sale.cb_view_order_form"></field>
+ -->    
+ 		 <field name = "inherit_id" ref = "sale.view_order_form"></field>    
+          <field name="arch" type = "xml">
+            <xpath expr ="//field[@name = 'partner_id']" position="after">
+              <!-- <field name="state" attrs = "{'readonly':0}" /> -->
+<!--               attrs="{'invisible': [('condition1', '=', False)]
+ -->              <field name="state"  />
+            </xpath>
+          </field>
+        </record>
+
+
+        <record model = "ir.ui.view" id = "sale_order_inherit_in_openacademy_tree">
+          <field name = "name">sale_order_inherit_in_openacademy_tree</field>
+          <field name = "model">sale.order</field>
+<!--           <field name = "inherit_id" ref = "cb_sale.cb_view_order_form"></field>
+ -->    
+ 		 <field name = "inherit_id" ref = "sale.view_order_tree"></field>    
+          <field name="arch" type = "xml">
+            <xpath expr ="//field[@name = 'partner_id']" position="after">
+              <!-- <field name="state" attrs = "{'readonly':0}" /> -->
+<!--               attrs="{'invisible': [('condition1', '=', False)]
+ -->              <field name="state"  />
+            </xpath>
+          </field>
+        </record>
+
+
+
+     </data>
+  </odoo>

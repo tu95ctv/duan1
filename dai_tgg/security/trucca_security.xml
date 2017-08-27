@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data >
+    <!-- Multi - Company Rules -->
+
+    <!-- Multi - Salesmen sales order assignation rules -->
+
+    <record id="trucca_personal_rule" model="ir.rule">
+        <field name="name">Truc ca</field>
+        <field ref="model_trucca" name="model_id"/>
+        <field name="domain_force">['|',('create_uid','=',user.id),('create_uid','=',False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    
+</data>
+</odoo>

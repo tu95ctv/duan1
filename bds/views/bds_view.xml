@@ -1,0 +1,208 @@
+<openerp>
+  <data>
+  <record id="bds_search" model="ir.ui.view">
+            <field name="name">sale.order.list.select</field>
+            <field name="model">bds.bds</field>
+            <field name="arch" type="xml">
+                <search string="bds search">
+                    <field name="name"></field>
+					<field name="title"></field>
+					<field name="gia"></field>
+					<field name="link"></field>
+					<field name="ngay_dang"></field>
+					<field name="html"></field>
+                    <separator/>
+                    <filter name="thisweek" string="This Week" domain="[('ngay_dang','&lt;=', (context_today().strftime('%Y-%m-%d'))), ('ngay_dang','&gt;=', ((context_today()-datetime.timedelta(days=7)).strftime('%Y-%m-%d')))]" help="Pickings that are late on scheduled time" />
+                    <filter name="thismonth" string="This Month" domain="[('ngay_dang','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('ngay_dang','&gt;=',time.strftime('%Y-%m-01'))]" help="Pickings that are late on scheduled time" />
+                    <filter name="thisyear" string="This Year" domain="[('ngay_dang','&lt;',(context_today()+relativedelta(years=1)).strftime('%Y-%m-01')), ('ngay_dang','&gt;=',time.strftime('%Y-%m-01'))]" help="Pickings that are late on scheduled time" />
+                   
+               </search>
+            </field>
+        </record>
+        
+        
+        
+    <!-- explicit list view definition -->
+    <record id="bds_form" model="ir.ui.view">
+            <field name="name">bds</field>
+            <field name="model">bds.bds</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                    <group>
+                  <field name="name"></field>
+					<field name="title"></field>
+					<field name="gia"></field>
+					<field name="ngay_dang"></field>
+					<field name="quan_id"></field>
+					<field name="phuong_id"></field>
+					<field name="link"></field>
+					<field name="poster_id"></field>
+					<field name="fetch_ids"></field>
+					<field name="html"></field>
+                  </group>
+                    </sheet>
+                    </form>
+               </field>
+         </record>
+         
+         
+    <record model="ir.ui.view" id="bds.list">
+      <field name="name">bds list</field>
+      <field name="model">bds.bds</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"></field>
+			<field name="title"></field>
+			<field name="gia"></field>
+			<field name="area"></field>
+			<field name="quan_id"></field>
+			<field name="phuong_id"></field>
+			<field name="ngay_dang"></field>
+			<field name="link"></field>
+			<field name="poster_id"></field>
+        </tree>
+      </field>
+    </record>
+    
+
+    <!-- actions opening views on models -->
+   
+    <record model="ir.actions.act_window" id="bds.action_window">
+      <field name="name">bds window</field>
+      <field name="res_model">bds.bds</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    
+    
+    
+    <!-- explicit list view definition -->
+    <record id="poster_form" model="ir.ui.view">
+            <field name="name">poster form</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                    <group>
+                  <field name="name"></field>
+					<field name="contact_address"></field>
+                    <field name="phone"></field>
+                    <field name="login"></field>
+                    <field name="post_ids"></field>
+                  </group>
+                    </sheet>
+                    </form>
+               </field>
+         </record>
+         
+         
+    <record model="ir.ui.view" id="poster_list">
+      <field name="name">bds list</field>
+      <field name="model">res.users</field>
+      <field name="arch" type="xml">
+        <tree>
+          	<field name="contact_address"></field>
+            <field name="phone"></field>
+            <field name="login"></field>
+            <field name="post_ids"></field>
+        </tree>
+      </field>
+    </record>
+    
+    
+    <record model="ir.actions.act_window" id="poster_action">
+      <field name="name">poster window</field>
+      <field name="res_model">res.users</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    
+    
+    <record id="users_form_for_action_d4" model="ir.actions.act_window.view">
+            <field eval="2" name="sequence" />
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="poster_form" />
+            <field name="act_window_id" ref="bds.poster_action" />
+        </record>
+        <record id="users_tree_for_action_d4" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="poster_list" />
+            <field name="act_window_id" ref="bds.poster_action" />
+        </record>
+        
+        
+    
+    
+    <record id="fetch_form" model="ir.ui.view">
+            <field name="name">fetch</field>
+            <field name="model">bds.fetch</field>
+            <field name="arch" type="xml">
+                <form>
+                <header>
+                        <button name="fetch" string="fetch ahaha" type="object" class="btn-primary" />
+                        <button name="group_quan" string="group" type="object" class="btn-primary" />
+                    </header>
+                    <sheet>
+                    <group>
+                  <field name="url"></field>
+		<field name="url_id"></field>
+		<field name="name"></field>
+		<field name="link"></field>
+		<field name="quan_id"></field>
+		<field name="phuong_ids"></field>
+		<field name="page_end"></field>
+		<field name="link_number"></field>
+		<field name="update_link_number"></field>
+		<field name="create_link_number"></field>
+		<field name="bds_ids"></field>
+                  </group>
+                    </sheet>
+                    </form>
+               </field>
+         </record>
+    <record model="ir.actions.act_window" id="fetch_action">
+      <field name="name">fetch window</field>
+      <field name="res_model">bds.fetch</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="bds.action_server">
+      <field name="name">bds server</field>
+      <field name="model_id" ref="model_bds_bds"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    
+    <menuitem name="bds" id="bds.menu_root"/>
+    
+    <!-- menu categories -->
+    
+    <menuitem name="Menu 1" id="bds.menu_1" parent="bds.menu_root"/>
+    <menuitem name="Menu 2" id="bds.menu_2" parent="bds.menu_root"/>
+    
+    <!-- actions -->
+    
+    <menuitem name="bds_menu" id="bds_menu" parent="bds.menu_1"
+              action="bds.action_window"/>
+     <menuitem name="poster menu" id="poster_menu" parent="bds.menu_1"
+              action="bds.poster_action"/>
+     <menuitem name="fetch_menu" id="fetch_menu" parent="bds.menu_1"
+              action="bds.fetch_action"/>
+              
+      <!-- 
+    <menuitem name="Server to list" id="bds" parent="bds.menu_2"
+              action="bds.action_server"/>
+    -->
+  </data>
+</openerp>

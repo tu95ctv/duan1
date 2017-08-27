@@ -1,0 +1,256 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="trucca_view">
+            <field name="name">trucca.form</field>
+            <field name="model">trucca</field>
+            <field name="arch" type="xml">
+                <form string="Truc ca Form">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="date"></field>
+                            <field name="ca"></field>
+                            <field name="truong_ca"></field>
+                            <field name="member_ids">
+                                <tree>
+                                    <field name="name" string="Tên người Trực"></field>
+                                </tree>
+                            </field>
+                            <field name="truc_kem_ids"></field>
+                            <field name="gio_bat_dau"></field>
+                            <field name="gio_ket_thuc"></field>
+                        </group>
+                        <notebook>
+                            <page string="Sự kiện">
+                                <field name="su_kien_ids">
+                                    <tree>
+                                        <field name="gio_bat_dau"></field>
+                                        <field name="gio_ket_thuc"></field>
+                                        <field name="catruc_ids"></field>
+                                        <field name="cate_sukien"></field>
+                                        <field name="content"></field>
+                                        <field name="comment_ids"></field>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Kiểm tra nguồn">
+                                <group>
+                                    <field name="dien_ap_a"></field>
+                                    <field name="dong_dien_a"></field>
+                                    <field name="dien_ap_b"></field>
+                                    <field name="dong_dien_b"></field>
+                                </group>
+                            </page>
+                            <page string="Vệ Sinh công nghiệp">
+                                <group>
+                                    <field name="co_toilet"></field>
+                                    <field name="quet_nha"></field>
+                                    <field name="chui_nha"></field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- graph view -->
+        <record id="trucca_graph" model="ir.ui.view">
+            <field name="name">trucca.graph</field>
+            <field name="model">trucca</field>
+            <!--<field name="priority">20</field>-->
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="date" type="row" interval="month" />
+                    <field name="date" type="row" interval="day" />
+                </graph>
+            </field>
+        </record>
+        <record id="catruc_nguoi_graph" model="ir.ui.view">
+            <field name="name">trucca.graph</field>
+            <field name="model">trucca</field>
+            <!--<field name="priority">20</field>-->
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="truong_ca" type="row" />
+                    <field name="date" type="row" interval="day" />
+                    <field name="date" type="row" interval="month" />
+                </graph>
+            </field>
+        </record>
+        <record id="user_graph" model="ir.ui.view">
+            <field name="name">user.graph</field>
+            <field name="model">res.users</field>
+            <!--<field name="priority">20</field>-->
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="name" type="row" />
+                    <field name="catruc_ids" type="measure" />
+                </graph>
+            </field>
+        </record>
+        <!-- calendar view -->
+        <record model="ir.ui.view" id="session_calendar_view">
+            <field name="name">trucca.calendar</field>
+            <field name="model">trucca</field>
+            <field name="arch" type="xml">
+                <calendar string="Trucca Calendar" date_start="date" color="member_ids">
+                    <field name="name" />
+                </calendar>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="res_users_form_inherit">
+            <field name="name">res.users.form.inherit</field>
+            <field name="inherit_id" ref="base.view_users_form" />
+            <field name="priority">17</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='email']" position="before">
+                    <field name="catruc_ids" />
+                </xpath>
+            </field>
+        </record>
+        <record id="sukien_graph" model="ir.ui.view">
+            <field name="name">sukien.graph</field>
+            <field name="model">sukien</field>
+            <!--<field name="priority">20</field>-->
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="gio_bat_dau" type="row" interval="month" />
+                    <field name="gio_bat_dau" type="row" interval="day" />
+                </graph>
+            </field>
+        </record>
+        <!-- search for sukien -->
+        <record id="sukien_search" model="ir.ui.view">
+            <field name="name">su kien search</field>
+            <field name="model">sukien</field>
+            <field name="arch" type="xml">
+                <search string="Search SK">
+                    <field name="cate_sukien" />
+                    <filter string="sự cố" name="su_co" domain="[('cate_sukien','=','Sự cố đứt quang')]" />
+                    <group expand="0" string="Group By">
+                        <filter string="group theo cate sự kiện " domain="[]" context="{'group_by':'cate_sukien'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!-- 
+        <record id="users_tree_for_action_res_users" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="users_tree"/>
+            <field name="act_window_id" ref="base.action_res_users"/>
+        </record>
+         -->
+        <record model="ir.ui.view" id="users_tree">
+            <field name="name">resuser.tree</field>
+            <field name="model">res.users</field>
+            <field name="priority">16</field>
+            <field name="arch" type="xml">
+                <tree string="user  tree">
+                    <field name="name"></field>
+                    <field name="catruc_ids" widget="many2many_tags"></field>
+                </tree>
+            </field>
+        </record>
+        
+        
+                <record model="ir.actions.act_window" id="users_action">
+            <field name="name">User d4</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">list,form,graph</field>
+            <!--<field name="view_id" ref ="users_tree"></field> -->
+            <field name="view_id" ref="res_users_form_inherit"></field>
+        </record>
+        
+        
+        
+        <record id="users_tree_for_action_d4" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="users_tree" />
+            <field name="act_window_id" ref="dai_tgg.users_action" />
+        </record>
+
+        <record model="ir.ui.view" id="sukien_form">
+            <field name="name">sukien.form</field>
+            <field name="model">sukien</field>
+            <field name="arch" type="xml">
+                <form string="sukien Form">
+                    <sheet>
+                        <group>
+                            <field name="show_field_test"></field>
+                            <field name="cate_sukien"></field>
+                            <field name="quet_nha" attrs="{'invisible': [('cate_sukien', '!=', 'vscn')]}"></field>
+                            <field name="dien_ap_a" attrs="{'invisible': [('cate_sukien', '!=', 'ktn')]}"></field>
+                            <field name="gio_bat_dau"></field>
+                            <field name="gio_ket_thuc"></field>
+                            <field name="duration"></field>
+                            <!-- <field name="catruc_ids" attrs="{'required':True}"  domain = "[('su_kien_ids','in',[id])]"></field> -->
+                            <field name="content"></field>
+                        </group>
+                        <field name="comment_ids" mode="tree,kanban">
+                            <tree>
+                                <field name="comment"></field>
+                            </tree>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="sukien_list" model="ir.ui.view">
+            <field name="name">sukien.list</field>
+            <field name="model">sukien</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="gio_bat_dau"></field>
+                    <field name="gio_ket_thuc"></field>
+                    <field name="cate_sukien"></field>
+                    <field name="content"></field>
+                    <field name="catruc_ids"></field>
+                    <field name="comment_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="trucca_list" model="ir.ui.view">
+            <field name="name">Truc ca</field>
+            <field name="model">trucca</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <field name="truong_ca"></field>
+                    <field name="su_kien_ids"></field>
+                    <field name="member_ids" widget="many2many_tags"></field>
+                    <field name="create_uid" string="Người tạo"></field>
+                    <field name="write_uid" string="Người sửa"></field>
+                    <field name="create_date" string="Ngày giờ Tạo"></field>
+                    <field name="write_date" string="Ngày giờ sửa"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="dai_tgg.action_window_trucca">
+            <field name="name">Trực ca</field>
+            <field name="res_model">trucca</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
+        </record>
+        <record model="ir.actions.act_window" id="sukien_action">
+            <field name="name">Sự kiện</field>
+            <field name="res_model">sukien</field>
+            <field name="view_mode">tree,form,graph</field>
+        </record>
+        <record model="ir.actions.act_window" id="catruc_nguoi_action">
+            <field name="name">Ca Trực/người</field>
+            <field name="res_model">trucca</field>
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="catruc_nguoi_graph"></field>
+        </record>
+        <!-- Top menu item -->
+        <menuitem name="Trực Ca" id="dai_tgg.truc_ca_root" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
+        <!-- menu categories -->
+        <menuitem name="Ca trực" id="trucca_menu" parent="dai_tgg.truc_ca_root" action="dai_tgg.action_window_trucca" sequence="1"></menuitem>
+        <menuitem name="Sự kiện" id="_menu" parent="dai_tgg.truc_ca_root" action="sukien_action" sequence="2"></menuitem>
+        <menuitem name="Ca trực/người" id="catruc_nguoi_menu" parent="dai_tgg.truc_ca_root" action="catruc_nguoi_action"></menuitem>
+        <menuitem name="users" id="users_menu" parent="dai_tgg.truc_ca_root" action="users_action"></menuitem>
+    </data>
+</openerp>

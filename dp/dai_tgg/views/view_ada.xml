@@ -1,0 +1,318 @@
+<openerp>
+    <data>
+        <!--  adaptor action -->
+        <record model="ir.actions.act_window" id="dai_tgg.ada_action">
+            <field name="name">new ada</field>
+            <field name="res_model">ada</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!--  padp action -->
+        <record model="ir.actions.act_window" id="dai_tgg.padp_action">
+            <field name="name">phương án dự phòng</field>
+            <field name="res_model">padp</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!--  padp search -->
+        <record model="ir.ui.view" id="padp_search">
+            <field name="name">padp search</field>
+            <field name="model">padp</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search options">
+                    <field name="huong_id" />
+                    <field name="soi_id" />
+                </search>
+            </field>
+        </record>
+        <!--  huong search -->
+        <record model="ir.ui.view" id="huong_search">
+            <field name="name">huong search</field>
+            <field name="model">huong</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search options">
+                    <field name="name" />
+                    <field name="soi_ids" />
+                    <field name="soi_name" />
+                    <field name="pa_hay_dp_n"></field>
+                </search>
+            </field>
+        </record>
+        
+        <!--  port.thiet_bi action -->
+        <record model="ir.actions.act_window" id="port_thiet_bi_action">
+            <field name="name">port thiết bị</field>
+            <field name="res_model">port.thiet_bi</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!--  padp list -->
+        <record id="padp_list" model="ir.ui.view">
+            <field name="name"> padp list</field>
+            <field name="model">padp</field>
+            <field name="arch" type="xml">
+                <tree string="padp list">
+                	<field name="name"></field>
+                    <field name="huong_id"></field>
+                    <field name="soi_id"></field>
+                    <field name="pa_hay_dp_n"></field>
+                    <field name="lich_su_hay_hien_tai"></field>
+                </tree>
+            </field>
+        </record>
+        <!--  huong list -->
+        <record id="huong_list" model="ir.ui.view">
+            <field name="name"> huong list</field>
+            <field name="model">huong</field>
+            <field name="arch" type="xml">
+                <tree string="padp list">
+                    <field name="name"></field>
+                    <field name="soi_ids"></field>
+                    <field name="soi_name"></field>
+                    <field name="pa_hay_dp_n"></field>
+                </tree>
+            </field>
+        </record>
+        <!-- adaptor form -->
+        <record id="adaptor_form" model="ir.ui.view">
+            <field name="name"> adaptor form</field>
+            <field name="model">ada</field>
+            <field name="arch" type="xml">
+                <form string="adaptor form">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="truoc_hay_sau"></field>
+                            <field name="adaptor_number"></field>
+                            <field name="odf_number"></field>
+                            <field name="tu_number"></field>
+                            <field name="ada_ref"></field>
+                            <field name="soi_id"></field>
+                            <field name="port_thiet_bi"></field>
+                            <field name="ada_khac_id"></field>
+                            <field name="thietbi_char"></field>
+                            <field name="phia_sau_odf_la"></field>
+                    		<field name="phia_truoc_odf_la"></field>
+                    		 <field name="odf_dau_xa"></field>
+                    		<field name="ghi_chu"></field>
+                    		<field name="couple_ada_id"></field>
+                    		
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- adaptor list -->
+        <record id="adaptor_list" model="ir.ui.view">
+            <field name="name"> ADA list</field>
+            <field name="model">ada</field>
+            <field name="arch" type="xml">
+                <tree string="ada list">
+                    <field name="name"></field>
+                    <field name="truoc_hay_sau"></field>
+                    <field name="adaptor_number"></field>
+                    <field name="odf_number"></field>
+                    <field name="tu_number"></field>
+                    <field name="soi_1_hay_soi_2"></field>
+                    <field name="couple_ada_id"></field>
+                    <field name="soi_id"></field>
+                    <field name="soi_goc_id"></field>
+                    <field name="port_thiet_bi"></field>
+                    <field name="ada_khac_id"></field>
+                    <field name="port_thiet_bi_cua_ada_khac_id"></field>
+                    <field name="soi_cua_ada_khac_id"></field>
+                    
+                    <field name="ada_ref"></field>
+                    <field name="thietbi_char"></field>
+                    <field name="odf_duoc_tach"></field>
+                    <field name="write_date"></field>
+                    <field name="phia_sau_odf_la"></field>
+                    <field name="phia_truoc_odf_la"></field>
+                    <field name="odf_dau_xa"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="padp_ids" widget="many2many_tags"></field>
+                    <field name="padp_ids_compute" ></field>
+                    
+                    
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="adaptor_search">
+            <field name="name">adaptor.search</field>
+            <field name="model">ada</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="truoc_hay_sau"/>
+                    <field name="odf_number"/>
+                    <field name="tu_number"/>
+                    <field name="soi_id"/>
+                    <field name="thietbi_char"/>
+                    <field name="create_date"/>
+                    <field name="phia_sau_odf_la"></field>
+                    <field name="phia_truoc_odf_la"></field>
+                     <field name="odf_dau_xa"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="soi_1_hay_soi_2"></field>
+                    <field name="search_phuong_an"></field>
+                    <field name="ada_khac_id"></field>
+                     <field name="port_thiet_bi_cua_ada_khac_id"></field>
+                     <field name="soi_cua_ada_khac_id"></field>
+                     
+                     
+                    
+                    
+                    
+                    <!-- <filter name="description2" string="description2"
+                            domain="[('responsible_id', '=', uid)]"
+                            context="{'anh con ne me': 1}"/> -->
+                    <group string="Group By a">
+                        <filter string="adaptor number" domain="[]" context="{'group_by':'adaptor_number'}"/>
+                    </group>
+                    
+						
+                </search>
+            </field>
+        </record>
+
+        <!-- soi form -->
+        <record id="soi_form" model="ir.ui.view">
+            <field name="name"> soi form</field>
+            <field name="model">dai_tgg.soi</field>
+            <field name="arch" type="xml">
+                <form string="ada form">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="stt_soi"></field>
+                            <field name="tuyen_cap"></field>
+                            <field name="soi_goc_id"></field>
+                            <field name="tach_det_txt"></field>
+                            <field name="pa_hay_dp_n"></field>
+                            <field name="huong_id"></field>
+                            <field name="thiet_bi_id"></field>
+                            <field name="ada_id"></field>
+                            <field name="padp_ids" context="{'default_huong_id':huong_id,'default_lich_su_hay_hien_tai':'hiện tại'}"></field>
+                   
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+       
+        
+        <record id="dai_log_list" model="ir.ui.view">
+            <field name="name">log list</field>
+            <field name="model">dai.log</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="sheet_name"></field>
+                    <field name="create_number_dict"></field>
+                    <field name="update_number_dict"></field>
+                   <field name="get_number_dict"></field>
+                </tree>
+            </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="dai_log_action">
+            <field name="name">log</field>
+            <field name="res_model">dai.log</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+        
+        <!-- soi action -->
+        <record model="ir.actions.act_window" id="dai_tgg.action_window_soi">
+            <field name="name">soi action</field>
+            <field name="res_model">dai_tgg.soi</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- end soi action -->
+        <!--  soi search -->
+        <record model="ir.ui.view" id="soi_search">
+            <field name="name">soi search</field>
+            <field name="model">dai_tgg.soi</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search options">
+                    <field name="name"></field>
+                    <field name="id"></field>
+                    <field name="stt_soi"></field>
+                    <field name="tuyen_cap"></field>
+                    <field name="ada_id"></field>
+                    <field name="huong_id"></field>
+                    <field name="pa_hay_dp_n"></field>
+                    <field name="thiet_bi_id"></field>
+                </search>
+            </field>
+        </record>
+        <!--  Soi list -->
+        <record id="soi_tree" model="ir.ui.view">
+            <field name="name">soi list</field>
+            <field name="model">dai_tgg.soi</field>
+            <field name="arch" type="xml">
+                <tree>
+                	<field name = "id"></field>
+                    <field name="name"></field>
+                    <field name="stt_soi"></field>
+                    <field name="tuyen_cap"></field>
+                    <field name="tach_det_txt"></field>
+                    <field name="ada_id"></field>
+                    <field name="huong_id"></field>
+                    <field name="pa_hay_dp_n"></field>
+                    <field name="thiet_bi_id"></field>
+                    <field name="soi_goc_id"></field>
+                    <field name="soi_ve_dai"></field>
+                    <field name="soi_duoc_chon_id"></field>
+                    <field name="padp_ids" widget="many2many_tags"></field>
+                     
+                    
+                    
+                </tree>
+            </field>
+        </record>
+        <!--  End Soi list -->
+        <record id="tuyen_cap_tree" model="ir.ui.view">
+            <field name="name">tuyen cap</field>
+            <field name="model">tuyen_cap</field>
+            <field name="arch" type="xml">
+                <tree>
+                	<field name = "id"></field>
+                    <field name="name"></field>
+                    <field name="soi_ids"></field>
+                </tree>
+            </field>
+        </record>
+        
+        
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="dai_tgg.action_window_huong">
+            <field name="name">huong action</field>
+            <field name="res_model">huong</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="tuyen_cap_action">
+            <field name="name">huong action</field>
+            <field name="res_model">tuyen_cap</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="thietbi_action">
+            <field name="name">thietbi action</field>
+            <field name="res_model">thietbi</field>
+            <field name="sequence">3</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- Top menu item -->
+        <menuitem name="Adaptor, Luồng" id="dai_tgg.menu_root" />
+        <!-- menu categories -->
+        <menuitem name="Menu 1" id="dai_tgg.menu_1" parent="dai_tgg.menu_root" />
+        <!--  menu action -->
+        <menuitem name="Face Adaptor" id="ada_menu" parent="dai_tgg.menu_1" action="dai_tgg.ada_action" />
+        <menuitem name="Sợi " id="dai_tgg.menu_1_soi" parent="dai_tgg.menu_1" action="dai_tgg.action_window_soi" />
+        <menuitem name="Hướng" id="dai_tgg.menu_1_huong" parent="dai_tgg.menu_1" action="dai_tgg.action_window_huong" />
+        <menuitem name="Thiết bị" id="thiet_bi" parent="dai_tgg.menu_1" action="thietbi_action" />
+        <menuitem name="Port Thiết bị" id="port_thiet_bi" parent="dai_tgg.menu_1" action="port_thiet_bi_action" />
+        <menuitem name="Phương án dự phòng" id="padp_menu" parent="dai_tgg.menu_1" action="dai_tgg.padp_action" />
+        <menuitem name="Tuyen cap" id="tuyen_cap_menu" parent="dai_tgg.menu_1" action="tuyen_cap_action" />
+        <menuitem name="Log" id="log_menu" parent="dai_tgg.menu_1" action="dai_log_action" />
+    </data>
+</openerp>

@@ -1,0 +1,30 @@
+<openerp>
+    <data>
+    
+    <record id="export_ada" model="ir.ui.view">
+            <field name="name">Export ADA form</field>
+            <field name="model">bds.import_quan</field>
+            <field name="arch" type="xml">
+                <form string="Import quan huyen">
+                    <group>
+                     <field name="so_quan"></field>
+                    </group>
+                    <footer>
+                        <button name="import_quan" string="_importquan" type="object" class="btn-primary" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+      <record id="import_quan_huyen_action" model="ir.actions.act_window">
+            <field name="name">import qh</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bds.import_quan</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>  
+  	<menuitem name="import quan huyen,muc gia" id="import_quan_huyen_menu" parent="bds.menu_1"
+              action="bds.import_quan_huyen_action"/>
+    </data>
+</openerp>
