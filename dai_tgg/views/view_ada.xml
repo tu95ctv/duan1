@@ -355,7 +355,7 @@
             <field name="view_mode">tree,form</field>
         </record>
         <!-- Top menu item -->
-        <menuitem name="Adaptor, Luồng" id="dai_tgg.menu_root" />
+        <menuitem name="Adaptor, Luồng" id="dai_tgg.menu_root"  web_icon="dai_tgg,static/src/image/odf.jpg"/>
         <!-- menu categories -->
         <menuitem name="Menu 1" id="dai_tgg.menu_1" parent="dai_tgg.menu_root" />
         <!--  menu action -->

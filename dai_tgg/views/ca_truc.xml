@@ -1,87 +1,251 @@
 <openerp>
     <data>
-        <record model="ir.ui.view" id="trucca_form">
-            <field name="name">trucca.form</field>
-            <field name="model">trucca</field>
+        <!-- Đài HCM -->
+        <!-- Đài HCM -->
+        <!-- Đài HCM -->
+        <!-- CA TRỰC -->
+        <record model="ir.ui.view" id="ctr_form">
+            <field name="name">ctr.form</field>
+            <field name="model">ctr</field>
             <field name="arch" type="xml">
                 <form string="Truc ca Form">
                     <sheet>
                         <group>
-                            <field name="tram_id"></field>
-                            <field name="name"></field>
-                            <field name="date"></field>
-                            <field name="ca"></field>
-                            <field name="truong_ca"></field>
-                            <field name="member_ids">
-                                <tree>
-                                    <field name="name" string="Tên người Trực"></field>
-                                </tree>
-                            </field>
-                            <field name="gio_bat_dau"></field>
-                            <field name="gio_ket_thuc"></field>
-                        </group>
-                        <group>
-                            <field name="nguoi_truc"></field>
-                            <field name="sk_id" context="{'nguoi_truc':(context_today()-relativedelta(months=1)).strftime('%Y-%m-01')}" domain="[('catruc_ids','in',[])]"></field>
-                            <field name="su_kien_tu_ids"></field>
+                            <group>
+                                <field name="name"></field>
+                                <field name="cty_id"></field>
+                                <field name="date"></field>
+                                <field name="ca"></field>
+                                <field name="gio_bat_dau"></field>
+                                <field name="gio_ket_thuc"></field>
+                            </group>
+                            <group>
+                                <field name="member_ids">
+                                    <tree>
+                                        <field name="name" string="Tên người Trực"></field>
+                                        <field name="cty_id"></field>
+                                    </tree>
+                                </field>
+                            </group>
                         </group>
                         <notebook>
-                            <page string="Sự kiện">
-                                <field name="su_kien_ids" context="{'catruc_id': active_id}">
-                                    <!-- 
-                                    <tree>
-                                        <field name="gio_bat_dau"></field>
-                                        <field name="gio_ket_thuc"></field>
-                                        <field name="catruc_ids"></field>
-                                        <field name="cate_sukien"></field>
-                                        <field name="content"></field>
-                                        <field name="comment_ids"></field>
-                                    </tree>
-                                     -->
-                                </field>
+                            <page string="Sự Cố">
+                                <!--  <field name="su_co_ids" domain="['|',('ctr_ids','=',active_id),'&amp;',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]"  context="{'active_id_4':active_id}"></field> -->
+                                <field name="su_co_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
+                                <!--  <field name="su_co_ids" domain="[('ctr_ids','=',active_id)]"></field> -->
+                                <!--  <field name="su_co_ids" domain="[('gio_ket_thuc','=',False)]"  context="{'active_id_4':active_id}"></field>-->
+                                <!--    <field name="su_co_ids"   context="{'active_id_4':active_id}"></field> -->
                             </page>
-                            <page string="Kiểm tra nguồn">
-                                <group>
-                                    <field name="dien_ap_a"></field>
-                                    <field name="dong_dien_a"></field>
-                                    <field name="dien_ap_b"></field>
-                                    <field name="dong_dien_b"></field>
-                                </group>
+                            <page string="Công Việc">
+                                <field name="cvi_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
                             </page>
-                            <page string="Vệ Sinh công nghiệp">
-                                <group>
-                                    <field name="co_toilet"></field>
-                                    <field name="quet_nha"></field>
-                                    <field name="chui_nha"></field>
-                                </group>
+                            <page string="Sự Vụ">
+                                <field name="su_vu_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
                             </page>
                         </notebook>
                     </sheet>
                 </form>
             </field>
         </record>
-        <!-- graph view -->
-        <record id="trucca_graph" model="ir.ui.view">
-            <field name="name">trucca.graph</field>
-            <field name="model">trucca</field>
-            <!--<field name="priority">20</field>-->
+        <record model="ir.ui.view" id="session_calendar_view">
+            <field name="name">ctr.calendar</field>
+            <field name="model">ctr</field>
             <field name="arch" type="xml">
-                <graph>
-                    <field name="date" type="row" interval="month" />
-                    <field name="date" type="row" interval="day" />
-                </graph>
+                <calendar string="Trucca Calendar" date_start="date" color="member_ids">
+                    <field name="name" />
+                </calendar>
             </field>
         </record>
-        <record id="catruc_nguoi_graph" model="ir.ui.view">
-            <field name="name">trucca.graph</field>
-            <field name="model">trucca</field>
-            <!--<field name="priority">20</field>-->
+        <record id="ctr_list" model="ir.ui.view">
+            <field name="name">Truc ca</field>
+            <field name="model">ctr</field>
             <field name="arch" type="xml">
-                <graph>
-                    <field name="truong_ca" type="row" />
-                    <field name="date" type="row" interval="day" />
-                    <field name="date" type="row" interval="month" />
-                </graph>
+                <tree>
+                    <field name="name"></field>
+                    <!--   <field name="su_co_ids"></field> -->
+                    <field name="cvi_ids"></field>
+                    <field name="cty_id"></field>
+                    <field name="member_ids" widget="many2many_tags"></field>
+                    <field name="gio_bat_dau"></field>
+                    <field name="gio_ket_thuc"></field>
+                    <!-- 
+                    <field name="create_uid" string="Người tạo"></field>
+                    <field name="write_uid" string="Người sửa"></field>
+                    <field name="create_date" string="Ngày giờ Tạo"></field>
+                    <field name="write_date" string="Ngày giờ sửa"></field>
+                     -->
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="ctr_action">
+            <field name="name">Ca Trực</field>
+            <field name="res_model">ctr</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]" />
+            <field name="view_mode">tree,form,calendar</field>
+        </record>
+        <!-- END CA TRUC -->
+        <!-- SỰ CỐ -->
+        <record model="ir.ui.view" id="suco_form">
+            <field name="name">Sự cố Form</field>
+            <field name="model">suco</field>
+            <field name="arch" type="xml">
+                <form string="Sự Cố Form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"></field>
+                                <field name="cty_id"></field>
+                                <field name="ngay_bat_dau"></field>
+                                <field name="cam_sua" invisible="1"></field>
+                                <field name="gio_bat_dau" attrs="{'readonly':[('cam_sua','=',True)]}" ></field>
+                                <field name="gio_ket_thuc"></field>
+                                <field name="duration"></field>
+                            <field name="file_ids"></field>
+                            </group>
+                            <group>
+                                <field name="loai_su_co_id" attrs="{'readonly':[('cam_sua','=',True)]}"></field>
+                                <field name="noi_dung" attrs="{'readonly':[('cam_sua','=',True)]}" ></field>
+                               <field name="doitac_ids"></field> 
+                            </group>
+                        </group>
+                        <group>
+                            <field name="comment_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="suco_list" model="ir.ui.view">
+            <field name="name">su co list</field>
+            <field name="priority" eval="1"></field>
+            <field name="model">suco</field>
+            <field name="arch" type="xml">
+                <tree name="sucotree1">
+                    <field name="name"></field>
+                    <field name="ngay_bat_dau"></field>
+                    <field name="gio_bat_dau"></field>
+                    <field name="gio_ket_thuc"></field>
+                    <field name="duration"></field>
+                    <field name="loai_su_co_id"></field>
+                    <field name="noi_dung"></field>
+                    <field name="comment_ids"></field>
+                    <field name="file_ids"></field>
+                    <field name="ctr_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="suco_list_and_create_eq_false" model="ir.ui.view">
+            <field name="name">su co 2</field>
+            <field name="priority" eval="2"></field>
+            <field name="model">suco</field>
+            <field name="inherit_id" ref="suco_list"></field>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[@name='sucotree1']" position="attributes">
+                    <attribute name="create">false
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="suco_action">
+            <field name="name">Sự Cố</field>
+            <field name="res_model">suco</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="su_co_no_create_act_view" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="dai_tgg.suco_list_and_create_eq_false" />
+            <field name="act_window_id" ref="dai_tgg.suco_action" />
+        </record>
+        <!-- END SỰ CỐ-->
+        <!-- SU VU -->
+        <record model="ir.ui.view" id="suvu_form">
+            <field name="name">Sự vụ Form</field>
+            <field name="model">suvu</field>
+            <field name="inherit_id" ref="dai_tgg.suco_form" />
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="loai_su_co_id" position="replace">
+                    <field name="loai_su_vu_id"
+                   attrs="{'readonly':[('cam_sua','=',True)]}"
+                    ></field>
+                    <!-- 
+                    <field name="field_1"></field>
+               		 <field name="field_2"></field>
+                	<field name="field_3"></field>
+                	 -->
+                </field>
+                <!-- 
+            	<xpath expr="//field[@name='gio_bat_dau']" position="replace">
+            		<field name = "test_field"> </field>
+            	</xpath>
+            	 -->
+            </field>
+        </record>
+        <record model="ir.ui.view" id="suvu_list">
+            <field name="name">Sự Vụ Tree</field>
+            <field name="model">suvu</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="suco_list" />
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="loai_su_co_id" position="replace">
+                    <field name="loai_su_vu_id"></field>
+                </field>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="suvu_lay_cac_view_ke_thua_action">
+            <field name="name">Sự Vụ</field>
+            <field name="res_model">suvu</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- END SU VU -->
+        <!-- USER -->
+        <record id="user_search" model="ir.ui.view">
+            <field name="name">user search</field>
+            <field name="priority" eval="1"></field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <search string="Search user">
+                    <field name="name" string="name or login or đơn vị" filter_domain="['|','|',('name','ilike',self),('login','ilike',self),('cty_id','ilike',self)]" />
+                    <group string="Group By Đơn vị">
+                        <filter string="Đơn Vị" context="{'group_by' : 'cty_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!-- form user -->
+        <record model="ir.ui.view" id="res_users_form_inherit_not">
+            <field name="name">res.users.form.inherit</field>
+            <field name="priority">1</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"></field>
+                                <field name="login"></field>
+                                <field name="date" string="Ngày sinh"></field>
+                            </group>
+                            <group>
+                                <field name="contact_address" string="Địa chỉ"></field>
+                                <field name="phone"></field>
+                                <field name="cty_id"></field>
+                                <field name="company_id"></field>
+                                <field name="groups_id"></field>
+                            </group>
+                        </group>
+                        <group>
+                          <!--   <field name="is_admin"></field> 
+                            <field name="cac_sep_ids" attrs="{'readonly':[('is_admin','=',False)]}"></field>
+                            <field name="cac_linh_ids"  attrs="{'readonly':[('is_admin','=',False)]}"></field>-->
+                            <field name="cac_sep_ids"></field>
+                            <field name="cac_linh_ids"  ></field>
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
         <record id="user_graph" model="ir.ui.view">
@@ -91,111 +255,29 @@
             <field name="arch" type="xml">
                 <graph>
                     <field name="name" type="row" />
-                    <field name="catruc_ids" type="measure" />
+                    <field name="ctr_ids" type="measure" />
                 </graph>
             </field>
         </record>
-        <!-- calendar view -->
-        <record model="ir.ui.view" id="session_calendar_view">
-            <field name="name">trucca.calendar</field>
-            <field name="model">trucca</field>
-            <field name="arch" type="xml">
-                <calendar string="Trucca Calendar" date_start="date" color="member_ids">
-                    <field name="name" />
-                </calendar>
-            </field>
-        </record>
-        <record id="sukien_graph" model="ir.ui.view">
-            <field name="name">sukien.graph</field>
-            <field name="model">sukien</field>
-            <!--<field name="priority">20</field>-->
-            <field name="arch" type="xml">
-                <graph>
-                    <field name="gio_bat_dau" type="row" interval="month" />
-                    <field name="gio_bat_dau" type="row" interval="day" />
-                </graph>
-            </field>
-        </record>
-        <!-- search for sukien -->
-        <record id="sukien_search" model="ir.ui.view">
-            <field name="name">su kien search</field>
-            <field name="model">sukien</field>
-            <field name="arch" type="xml">
-                <search string="Search SK">
-                    <field name="cate_sukien" />
-                    <filter string="sự cố" name="su_co" domain="[('cate_sukien','=','Sự cố đứt quang')]" />
-                    <group expand="0" string="Group By">
-                        <filter string="group theo cate sự kiện " domain="[]" context="{'group_by':'cate_sukien'}" />
-                    </group>
-                </search>
-            </field>
-        </record>
-        <!-- 
-        <record id="users_tree_for_action_res_users" model="ir.actions.act_window.view">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="users_tree"/>
-            <field name="act_window_id" ref="base.action_res_users"/>
-        </record>
-         -->
+        <!-- user tree -->
         <record model="ir.ui.view" id="users_tree">
             <field name="name">resuser.tree</field>
             <field name="model">res.users</field>
             <field name="priority">1</field>
-            <field name="inherit_id" ref="base.view_users_tree" />
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='login']" position="before">
-                    <field name="catruc_ids" />
+                <tree>
                     <field name="name"></field>
-                    <field name="tz"></field>
-                    <field name="contact_address"></field>
-                    <field name="groups_id"></field>
+                    <field name="login"></field>
+                    <field name="date" string="Ngày sinh"></field>
+                    <field name="contact_address" string="Địa chỉ"></field>
                     <field name="phone"></field>
-                    <field name="date"></field>
-                    <field name="catruc_ids" widget="many2many_tags"></field>
-                    <field name="tram_id"></field>
-                </xpath>
-            </field>
-        </record>
-        <!-- 
-          <record model="ir.ui.view" id="res_users_form_inherit">
-            <field name="name">res.users.form.inherit</field>
-            <field name="priority">2</field>
-            <field name="model">res.users</field>
-            <field name="inherit_id" ref="base.view_users_form" />
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='email']" position="before">
-                    <field name="catruc_ids" />
-                    <field name="contact_address"></field>
-                    <field name="groups_id"></field>
-                    <field name="phone"></field>
-                    <field name="date"></field>
-                    <field name="catruc_ids" widget="many2many_tags"></field>
-                    <field name="tram_id" ></field>
-                </xpath>
-            </field>
-        </record>
-         -->
-        <record model="ir.ui.view" id="res_users_form_inherit_not">
-            <field name="name">res.users.form.inherit</field>
-            <field name="priority">2</field>
-            <field name="model">res.users</field>
-            <field name="arch" type="xml">
-                <form>
-                    <group>
-                        <field name="catruc_ids" />
-                        <field name="contact_address"></field>
-                        <field name="groups_id"></field>
-                        <field name="phone"></field>
-                        <field name="date"></field>
-                        <field name="catruc_ids" widget="many2many_tags"></field>
-                        <field name="tram_id"></field>
-                    </group>
-                </form>
+                    <field name="cty_id"></field>
+                    <field name="company_id"></field>
+                </tree>
             </field>
         </record>
         <record model="ir.actions.act_window" id="users_action">
-            <field name="name">User d4</field>
+            <field name="name">User(Nhân viên)</field>
             <field name="res_model">res.users</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,graph</field>
@@ -214,250 +296,1220 @@
             <field name="view_id" ref="dai_tgg.users_tree" />
             <field name="act_window_id" ref="dai_tgg.users_action" />
         </record>
-        <record model="ir.ui.view" id="sukien_form">
-            <field name="name">sukien.form</field>
-            <field name="model">sukien</field>
+        <!-- END USER -->
+        <!--  CONG TY-->
+        <record model="ir.ui.view" id="congty_form">
+            <field name="name">Công Ty Form</field>
+            <field name="model">congty</field>
             <field name="arch" type="xml">
-                <form string="sukien Form">
-                    <sheet>
-                        <group>
-                            <field name="gio_bat_dau"></field>
-                            <field name="gio_ket_thuc"></field>
-                            <field name="cate_sukien"></field>
-                            <field name="duration"></field>
-                            <field name="content"></field>
-                            <field name="comment_ids"></field>
-                            <field name="catruc_ids"></field>
-                            <field name="su_kien_id"></field>
-                            <field name="chuyen_luong_ids" attrs="{'invisible': [('cate_sukien', '!=', 'Đổi luồng')]}"></field>
-                            <field name="test"></field>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        <record id="sukien_list" model="ir.ui.view">
-            <field name="name">sukien.list</field>
-            <field name="model">sukien</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"></field>
-                    <field name="gio_bat_dau"></field>
-                    <field name="gio_ket_thuc"></field>
-                    <field name="cate_sukien"></field>
-                    <field name="duration"></field>
-                    <field name="content"></field>
-                    <field name="comment_ids"></field>
-                    <field name="catruc_ids"></field>
-                    <field name="su_kien_id"></field>
-                    <field name="chuyen_luong_ids"></field>
-                </tree>
-            </field>
-        </record>
-        <record id="trucca_list" model="ir.ui.view">
-            <field name="name">Truc ca</field>
-            <field name="model">trucca</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"></field>
-                    <field name="truong_ca"></field>
-                    <field name="su_kien_ids"></field>
-                    <field name="tram_id"></field>
-                    <field name="member_ids" widget="many2many_tags"></field>
-                    <field name="create_uid" string="Người tạo"></field>
-                    <field name="write_uid" string="Người sửa"></field>
-                    <field name="create_date" string="Ngày giờ Tạo"></field>
-                    <field name="write_date" string="Ngày giờ sửa"></field>
-                </tree>
-            </field>
-        </record>
-        <record id="lichsuchay_list" model="ir.ui.view">
-            <field name="name">lichsuchay</field>
-            <field name="model">lichsuchay</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"></field>
-                    <field name="su_kien_id"></field>
-                </tree>
-            </field>
-        </record>
-        <record model="ir.actions.act_window" id="dai_tgg.action_window_trucca">
-            <field name="name">Trực ca</field>
-            <field name="res_model">trucca</field>
-            <field name="view_mode">tree,form,calendar,graph</field>
-            <field name="domain">[('create_uid','=',uid)]</field>
-        </record>
-        <record model="ir.actions.act_window" id="sukien_action">
-            <field name="name">Sự kiện</field>
-            <field name="res_model">sukien</field>
-            <field name="view_mode">tree,form,graph</field>
-        </record>
-        <record model="ir.actions.act_window" id="catruc_nguoi_action">
-            <field name="name">Ca Trực/người</field>
-            <field name="res_model">trucca</field>
-            <field name="view_mode">graph</field>
-            <field name="view_id" ref="catruc_nguoi_graph"></field>
-        </record>
-        <record model="ir.actions.act_window" id="tram_action">
-            <field name="name">trạm</field>
-            <field name="res_model">tram</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-        <record model="ir.ui.view" id="importbd_form">
-            <field name="name">importbd</field>
-            <field name="model">importbd</field>
-            <field name="arch" type="xml">
-                <form>
-                    <header>
-                        <button name="importbd" string="import" type="object" class="btn-primary" />
-                    </header>
+                <form string="Công Ty Form">
                     <sheet>
                         <group>
                             <group>
-                                <field name="import_2g_or_3g"></field>
-                            </group>
-                            <group>
-                                <field name="file"></field>
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        <record model="ir.actions.act_window" id="importbd_action">
-            <field name="name">importbd</field>
-            <field name="res_model">importbd</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-        
-        <record model="ir.actions.act_window" id="importbdtuan_action">
-            <field name="name">importbdtuan</field>
-            <field name="res_model">importbdtuan</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-        <record id="importbdtuan_form" model="ir.ui.view">
-            <field name="name">importbdtuan form</field>
-            <field name="model">importbdtuan</field>
-            <field name="arch" type="xml">
-                <form>
-                <header>
-                        <button name="import_bd_tuan" string="import_bd_tuan ahaha" type="object" class="btn-primary" />
-                        <button name="download_for_rnas" string="download" type="object" class="btn-primary" />
-                    </header>
-                    <sheet>
-                    <field name="file_import"></field>
-                     <field name="lineimports">
-                     	<tree>
-	                     	<field name="name_2g"></field>
-	                     	<field name="bts_id"></field>
-							<field name="name_3g"></field>
-							<field name="week_number"></field>
-							<field name="week_char"></field>
-							<field name="is_mapping_2_week"></field>
-							<field name="date"></field>
-							<field name="date_char"></field>
-							<field name="importbdtuan_id"></field>
-							<field name="ghi_chu"></field>
-							
-                     	</tree>
-                     </field>
-                    	
-                    </sheet>
-                 </form>
-               </field>
-             </record>
-        <record model="ir.actions.act_window" id="bts_action">
-            <field name="name">bts</field>
-            <field name="res_model">bts</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-        <record id="bts_list" model="ir.ui.view">
-            <field name="name">bts list</field>
-            <field name="model">bts</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"></field>
-                    <field name="ma_tram"></field>
-                    <field name="ngay_bao_duong"></field>
-                </tree>
-            </field>
-        </record>
-        <record id="tram_list" model="ir.ui.view">
-            <field name="name">tram list</field>
-            <field name="model">tram</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"></field>
-                    <field name="address"></field>
-                </tree>
-            </field>
-        </record>
-        <record id="totrinh_form" model="ir.ui.view">
-            <field name="name">totrinh</field>
-            <field name="model">totrinh</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet>
-                        <div class="oe_title">
-                            <h1>
                                 <field name="name"></field>
-                            </h1>
-                        </div>
-                        <group>
-                            <field name="location"></field>
-                            <field name="date"></field>
-                            <field name="kinh_trinh_id"></field>
-                            <field name="member_id"></field>
-                            <field name="noi_dung"></field>
+                                <field name="parent_id"></field>
+                                <field name="child_ids"></field>
+                                <field name="cong_ty_type"></field>
+                            </group>
+                            <group>
+                                <field name="ca_sang_bat_dau"></field>
+                                <field name="ca_chieu_bat_dau"></field>
+                                <field name="ca_dem_bat_dau"></field>
+                                <field name="ca_sang_duration"></field>
+                                <field name="ca_chieu_duration"></field>
+                                <field name="ca_dem_duration"></field>
+                            </group>
                         </group>
-                        <notebook>
-                            <page string="Order Lines">
-                                <field name="vat_tu_ids" mode="tree,kanban">
-                                    <form>
-                                        <field name="vat_tu_id"></field>
-                                        <field name="to_trinh_id"></field>
+                        <group>
+                            <field name="nhan_vien_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="congty_list" model="ir.ui.view">
+            <field name="name">Công Ty list </field>
+            <field name="model">congty</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <field name="parent_id"></field>
+                    <field name="child_ids"></field>
+                    <field name="cong_ty_type"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="congty_action">
+            <field name="name">Đơn Vị (Công Ty)</field>
+            <field name="res_model">congty</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!--  END CONG TY -->
+        <!-- CONG VIEC -->
+        <!-- search for  -->
+        <record id="cvi_search" model="ir.ui.view">
+            <field name="name">su kien search</field>
+            <field name="model">cvi</field>
+            <field name="arch" type="xml">
+                <search string="Search SK">
+                    <field name="name" />
+                    <field name="user_id" />
+                    <field name="tvcv_id" string="Con của thư viện cv" filter_domain="[('tvcv_id','child_of',self)]" />
+                    <field name="tvcv_id" string="Con của thư viện cv pr way" filter_domain="[('tvcv_id.parent_id','=',self)]" />
+                    <field name="loai_cvi" />
+                    <field name="ngay_bat_dau" />
+                    <field name="create_date"></field>
+                    <filter name="Có CV Giai Đoạn Con" domain="[('gd_children_ids','!=',False)]" />
+                    <filter name="Có CV Chia điểm Con" domain="[('cd_children_ids','!=',False)]" />
+                    <filter name="this month" string="CV Tháng này" domain="[('ngay_bat_dau','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&gt;=',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
+                    <filter name="last month" string="CV Tháng Trước" domain="[('ngay_bat_dau','&gt;=',(context_today()+relativedelta(months=-1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&lt;',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
+                    <!--<filter name="congvieccon va chung" string="congvieccon va chung" domain="['!','&amp;',('loai_diem.cong_viec_cha_hay_con_hay_don','=','Công Việc Con'),('loai_diem.dac_diem','=','Nhiều Người Làm Cùng 1 Lúc')]"></filter>
+                    <filter string="sự cố" name="su_co" domain="[('cate_','=','Sự cố đứt quang')]" />
+                    <group expand="0" string="Group By">
+                        <filter string="group theo cate sự kiện " domain="[]" context="{'group_by':'cate_'}" />
+                    </group>
+                    -->
+                </search>
+            </field>
+        </record>
+        <!-- Cong viec Form -->
+        <record model="ir.ui.view" id="cvi_form">
+            <field name="name"> su kien form</field>
+            <field name="model">cvi</field>
+            <field name="arch" type="xml">
+                <form string=" Form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="id"></field>
+                                <field name="name"></field>
+                                <field name="user_id"></field>
+                                <field name="cty_id"></field>
+                                <field name="cty_ids" ></field>
+                              
+                            </group>
+                            <group>
+                                <field name="doitac_ids"></field>
+                                <field name="file_ids"></field>
+                                  <field name="cd_parent_id" readonly="1" invisible="context.get('you_at_gd_form')"></field>
+                                <field name="gd_parent_id" readonly="1"></field>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="ngay_bat_dau"></field>
+                                <field name="gio_bat_dau" readonly="context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}"></field>
+                                <field name="gio_ket_thuc" readonly="context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}"></field>
+                                <field name="duration"></field>
+                                <field name="slncl"></field>
+                            </group>
+                            <group>
+                                <field name="loai_cvi"></field>
+                                <field name="tvcv_id" 
+                                attrs="{'readonly':['|',('cam_sua','=',True),'&amp;',('id','>',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)]}"
+                                required="not context.get('you_at_cd_form')" 
+                                context="{'you_search_at_gd_form':context.get('you_at_gd_form'),'thu_vien_da_chon_list':context.get('xxx'),'thu_vien_id_of_gd_parent_id':context.get('thu_vien_id_of_gd_parent_id')}" />
+                              <field name="diem_tvi"></field>
+                               <field name="don_vi"></field>
+                                <field name="so_luong" 
+                                attrs="{'readonly':['|',('cam_sua','=',True),'&amp;',('id','>',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)]}"
+                               ></field><!--  readonly="context.get('you_at_gd_form')" -->
+                               <field name="so_lan"
+                                attrs="{'readonly':['|',('cam_sua','=',True),'&amp;',('id','>',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)]}"
+                               ></field>
+                            </group>
+                           
+                        </group>
+                        <group>
+                            <group>
+                                <field name="diem_goc"></field>
+                                <field name="diemtt"></field>
+                                <field name="percent_diemtt"
+                                 attrs="{'readonly':['|',('cam_sua_do_chot','=',True),('cam_sua_do_chot','=',True)],'invisible':[('cd_parent_id','=',False),('cd_children_ids','=',[])]}"></field>
+                                <field name="diemtc"></field>
+                                <field name="valid_diemtc_conclusion"></field>
+                            </group>
+                            <group>
+                                <field name="noi_dung"></field>
+                                <field name="percent_diemtc" attrs="{'readonly' : [('is_sep', '=', False)],'invisible' : [('is_sep', '=', False)]}"></field>
+                                <field name="diemld" attrs="{'invisible' : [('is_sep', '=', False)]}"></field>
+                            </group>
+                            	
+                            <group name="admin1" attrs="{'invisible':[('is_admin','=',False)]}">
+                                <field name="valid_diemtc"></field>
+                                <field name="diem_remain_gd" ></field>
+                               <field name="sum_cd_con"></field>
+                                <field name="sum_gd_con"></field>
+                                <field name="valid_cd" ></field>
+                                <field name="valid_gd" ></field>
+                            </group>	
+                             <!-- <group name="admin" invisible="not context.get('is_admin')">-->
+                             <group name="admin2" attrs="{'invisible':[('is_admin','=',False)]}">
+                             	<field name="is_has_tvcv_con" ></field>
+                                <field name="thu_vien_da_chon_list" ></field>
+                            	<field name="is_admin" ></field>
+                            	<field name="cam_sua" ></field>
+                                <field name="cam_sua_do_time" ></field>
+                             <!--   <field name="ly_do_cam_sua_do_time" ></field> --> 
+                                <field name="cam_sua_do_diff_user" ></field>
+                                <field name="cam_sua_do_chot" ></field>
+                                <field name="is_sep"></field>
+                            </group>
+                            
+                        </group>
+                        <notebook attrs="{'invisible':[('cd_parent_id','!=',False)]}" invisible="context.get('you_at_cd_form')">
+                            <page string="CHIA ĐIỂM CHO NHIỀU NGƯỜI" attrs="{'invisible':['|',('gd_children_ids','!=',[]),('tvcv_id','=',False)]}">
+                                <field name="cd_children_ids" context="{'default_cd_parent_id':active_id,'you_at_cd_form':True}">
+                                    <tree decoration-danger="not valid_diemtc" editable="bottom">
+                                        <!--  editable="bottom"  -->
+                                        <field name="cd_parent_id" invisible="1"></field>
+                                        <field name="user_id"></field>
+                                        <field name="gio_bat_dau"></field>
+                                        <field name="gio_ket_thuc" invisible="1"></field>
+                                        <field name="slncl"></field>
+                                        <field name="tvcv_id"></field>
+                                        <field name="loai_cvi"></field>
+                                        <field name="noi_dung"></field>
+                                        <field name="valid_cd" invisible="1"></field>
+                                        <field name="diem_goc" invisible="1"></field>
                                         <field name="so_luong"></field>
-                                        <field name="product_uom"></field>
-                                    </form>
-                                    <tree string="vat_tu_ids lines" editable="bottom">
-                                        <field name="vat_tu_id"></field>
-                                        <field name="to_trinh_id"></field>
-                                        <field name="so_luong"></field>
-                                        <field name="product_uom"></field>
+                                        <field name="so_lan"></field>
+                                        <field name="diemtt"></field>
+                                        <field name="percent_diemtt"></field>
+                                        <field name="diemtc"></field>
+                                        <field name="percent_diemtc"></field>
+                                        <field name="diemld"></field>
+                                        <field name="valid_diemtc"></field>
+                                        <field name="valid_diemtc_conclusion"></field>
+                                        <field name="name"></field>
+                                        <field name="write_date"></field>
                                     </tree>
                                 </field>
-                                <!-- 
-					<group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
-                                <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
-                                    <label for="amount_total" />
-                                    <button name="button_dummy"
-                                        states="draft,sent" string="(update)" type="object" class="oe_edit_only oe_link"/>
-                                </div>
-                                <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-                     </group>
-                      -->
+                            </page>
+                            <page string="CÁC GIAI ĐOẠN CÔNG VIỆC" attrs="{'invisible':['|',('cd_children_ids','!=',[]),('is_has_tvcv_con','=',False)]}">
+                                <field name="gd_children_ids" context="{'default_gd_parent_id':active_id,'default_so_luong':so_luong,'you_at_gd_form':True, 'xxx':thu_vien_da_chon_list,'thu_vien_id_of_gd_parent_id':tvcv_id}">
+                                    <tree decoration-danger="not valid_diemtc">
+                                        <field name="id" invisible="1"></field>
+                                        <field name="noi_dung"></field>
+                                        <field name="gd_parent_id" invisible="1"></field>
+                                        <field name="gio_bat_dau"></field>
+                                        <field name="gio_ket_thuc"></field>
+                                        <field name="tvcv_id"></field>
+                                        <field name="loai_cvi"></field>
+                                        <field name="valid_cd" invisible="1"></field>
+                                        <field name="valid_gd" invisible="1"></field>
+                                        <field name="so_luong"></field>
+                                        <field name="so_lan"></field>
+                                        <field name="slncl"></field>
+                                        <field name="cd_children_ids" />
+                                        <field name="diem_goc" invisible="1"></field>
+                                        <field name="diemtt"></field>
+                                        <field name="diemtc"></field>
+                                        <field name="valid_diemtc"></field>
+                                        <field name="valid_diemtc_conclusion"></field>
+                                        <field name="percent_diemtc"></field>
+                                        <field name="diemld" />
+                                        <field name="write_date"></field>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="COMMENTS">
+                                <field name="comment_ids"></field>
                             </page>
                         </notebook>
                     </sheet>
                 </form>
             </field>
         </record>
-        <act_window name="totrinh" res_model="totrinh" view_mode="tree,form" id="totrinh_action" />
-        <!-- Top menu item -->
-        <menuitem name="Trực Ca" id="dai_tgg.truc_ca_root" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
-        <!-- menu categories -->
-        <menuitem name="Ca trực" id="trucca_menu" parent="dai_tgg.truc_ca_root" action="dai_tgg.action_window_trucca" sequence="1"></menuitem>
-        <menuitem name="Sự kiện" id="_menu" parent="dai_tgg.truc_ca_root" action="sukien_action" sequence="2"></menuitem>
-        <menuitem name="Ca trực/người" id="catruc_nguoi_menu" parent="dai_tgg.truc_ca_root" action="catruc_nguoi_action"></menuitem>
-        <menuitem name="users" id="users_menu" parent="dai_tgg.truc_ca_root" action="users_action"></menuitem>
-        <menuitem name="Else" id="else_menu" parent="dai_tgg.truc_ca_root" action="users_action"></menuitem>
-        <menuitem name="Trạm" id="tram_menu" parent="else_menu" action="tram_action"></menuitem>
-        <menuitem id="totrinh_menu" parent="else_menu" action="totrinh_action"></menuitem>
-        <menuitem id="bts_menu" parent="else_menu" action="bts_action"></menuitem>
-        <menuitem id="importbd_menu" parent="else_menu" action="importbd_action"></menuitem>
-        <menuitem id="importbdtuan_menu" parent="else_menu" action="importbdtuan_action"></menuitem>
+        <!-- congviec list -->
+        <record id="cvi_list" model="ir.ui.view">
+            <field name="name">cvi list</field>
+            <field name="model">cvi</field>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]" />
+            <field name="arch" type="xml">
+                <tree decoration-danger="not valid_diemtc">
+                    <field name="id"></field>
+                    <field name="ngay_bat_dau"></field>
+                    <field name="gio_bat_dau"></field>
+                    <field name="gio_ket_thuc"></field>
+                    <field name="duration"></field>
+                    <field name="noi_dung"></field>
+                    <field name="user_id"></field>
+                    <field name="cty_id"></field>
+                    <field name="cty_ids" ></field>
+                    <field name="tvcv_id"></field>
+                    <field name="loai_cvi"></field>
+                    <field name="cd_parent_id" invisible="context.get('you_at_cd_form') or context.get('you_at_gd_form')"></field>
+                    <field name="cd_children_ids" invisible="context.get('you_at_cd_form')"></field>
+                    <field name="file_ids"></field>
+                    <field name="gd_parent_id" invisible="context.get('you_at_cd_form')"></field>
+                    <field name="gd_children_ids" invisible="context.get('you_at_cd_form') or context.get('you_at_gd_form')"></field>
+                    <!--<field name="cd_children_ids" widget="many2many_tags" invisible="context.get('you_at_cd_form')"></field> -->
+                    <field name="ctr_ids"></field>
+                    <field name="slncl"></field>
+                    <field name="diem_tvi"></field>
+                    <field name="don_vi"></field>
+                    <field name="so_luong"></field>
+                    <field name="so_lan"></field>
+                    <field name="diem_goc" invisible="1"></field>
+                    <field name="diemtt"></field>
+                    <field name="percent_diemtt"></field>
+                    <field name="diemtc"></field>
+                    <field name="valid_diemtc"></field>
+                    <field name="valid_diemtc_conclusion"></field>
+                    <field name="is_sep" invisible="1"></field>
+                    <field name="percent_diemtc" attrs="{'invisible' : [('is_sep', '=', False)]}"></field>
+                    <field name="diemld" attrs="{'invisible' : [('is_sep', '=', False)]}" />
+                    <field name="write_date"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="cvi_graph" model="ir.ui.view">
+            <field name="name">.graph</field>
+            <field name="model">cvi</field>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]" />
+            <field name="arch" type="xml">
+                <graph stacked="False">
+                    <field name="ngay_bat_dau" type="row" interval="day" />
+                    <field name="ngay_bat_dau" type="row" interval="month" />
+                    <field name="user_id" type="row" />
+                    <field name="diemtc" type="measure" />
+                    <field name="diemld" type="measure" groups="base.group_erp_manager" />
+                </graph>
+            </field>
+        </record>
+        <record id="cvi_pivot" model="ir.ui.view">
+            <field name="name">Sự kiện pivot</field>
+            <field name="model">cvi</field>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]" />
+            <field name="arch" type="xml">
+                <pivot string="Stock Picking Analysis">
+                    <field name="cty_id" type="row" />
+                    <field name="ngay_bat_dau" type="row" interval="month" />
+                    <field name="user_id" type="row" />
+                    <field name="ngay_bat_dau" type="row" interval="day" />
+                    <field name="name" type="row" />
+              <!--      <field name="tvcv_id.name" type="measure" />-->
+                    <field name="diem_tvi" type="measure" />
+                    <field name="so_luong" type="measure" />
+                    <field name="so_lan" type="measure" />
+                    <field name="diemtc" type="measure" />
+                    <field name="diemld" type="measure" groups="base.group_erp_manager" />
+                </pivot>
+            </field>
+        </record>
+        <record id="action_dynamic_domain" model="ir.actions.server">
+            <field name="name">action_dynamic_domain cong viec</field>
+            <field name="priority" eval="1"></field>
+            <field name="sequence" eval="1"></field>
+            <field name="model_id" ref="model_cvi" />
+            <field name="state">code</field>
+            <field name="code">action = env['cvi'].action_dynamic_domain()</field>
+            <field eval="True" name="condition" />
+        </record>
+        <record model="ir.actions.act_window" id="cvi_action">
+            <field name="name">Công việc</field>
+            <field name="res_model">cvi</field>
+            <field name="priority" eval="1"></field>
+            <field name="sequence" eval="1"></field>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]" />
+            <!-- <field name="context" >{'cty_id':2}</field> -->
+            <!--   <field name="domain" >[('cty_id','=',context.get('cty_id'))]</field>   -->
+            <!--   <field name="domain" >['|',('cty_id','=',context.get('cty_id')),('cty_id','child_of',context.get('cty_id'))]</field> -->
+            <field name="view_mode">tree,form,graph,pivot</field>
+        </record>
+        <record id="cvi_act_window" model="ir.actions.act_window.view">
+            <field eval="3" name="sequence" />
+            <field name="view_mode">graph</field>
+            <field name="view_id" ref="cvi_graph" />
+            <field name="act_window_id" ref="cvi_action" />
+        </record>
+        <record id="cvi_act_window_for_list" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="cvi_list" />
+            <field name="act_window_id" ref="cvi_action" />
+        </record>
+        <!-- END CÔNG VIỆC -->
+        <!--PN -->
+        <record id="file_search" model="ir.ui.view">
+            <field name="name">KK search</field>
+            <field name="model">dai_tgg.file</field>
+            <field name="arch" type="xml">
+                <search string="PN">
+                    <field name="name"></field>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="file_form">
+            <field name="name">PN Form</field>
+            <field name="model">dai_tgg.file</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="file" filename="name"></field>
+                            <field name="mo_ta"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="file_list">
+            <field name="name">file </field>
+            <field name="model">dai_tgg.file</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                    <field name="name"></field>
+                    <field name="file"></field>
+                    <field name="mo_ta"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="file_action">
+            <field name="name">File</field>
+            <field name="res_model">dai_tgg.file</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- FILE -->
+        <!--  THƯ VIỆN CÔNG VIỆC -->
+        <record id="tvcv_search" model="ir.ui.view">
+            <field name="name">Thư viện công việc search</field>
+            <field name="model">tvcv</field>
+            <field name="arch" type="xml">
+                <search string="Search SK">
+                    <field name="name" filter_domain="['|',('name','ilike',self),('code','ilike',self)]"></field>
+                    <field name="id"></field>
+                    <field name="active"></field>
+                    <field name="code"></field>
+                    <field name="don_vi"></field>
+                    <field name="do_phuc_tap"></field>
+                    <field name="thoi_gian_hoan_thanh"></field>
+                    <field name="diem"></field>
+                    <field name="dot_xuat_hay_dinh_ky"></field>
+                    <field name="cong_viec_cate_id"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="diem_percent"></field>
+                    <field name="children_ids"></field>
+                    <field name="is_has_children"></field>
+                    <field name="co_cong_viec_cha"></field>
+                    <field name="parent_id" string="Có công việc cha" filter_domain="[('parent_id','!=',False)]"></field>
+                    <field name="parent_id"></field>
+                    <field name="create_date"></field>
+                    <field name="write_date"></field>
+                    <field name="create_uid"></field>
+                    <field name="write_uid"></field>
+                    <group expand="0" string="Group By">
+                        <filter string="group by Đơn vị tính" context="{'group_by':'don_vi'}" />
+                        <filter string="group by Độ Phức Tạp" context="{'group_by':'do_phuc_tap'}" />
+                        <filter string="group by Thời Gian Hoàn Thành" context="{'group_by':'thoi_gian_hoan_thanh'}" />
+                        <filter string="group by Điểm" context="{'group_by':'diem'}" />
+                        <filter string="group by Đột xuất hay định kỳ" context="{'group_by':'dot_xuat_hay_dinh_ky'}" />
+                        <filter string="group by Phân loại công việc" context="{'group_by':'cong_viec_cate_id'}" />
+                        <filter string="group by Có CV giai đoạn con" context="{'group_by':'is_has_children'}" />
+                        <filter string="group by Công Việc giai đoạn Cha" context="{'group_by':'parent_id'}" />
+                        <filter string="group by Có công việc cha" context="{'group_by':'co_cong_viec_cha'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="tvcv_form" model="ir.ui.view">
+            <field name="name">cong viec form</field>
+            <field name="model">tvcv</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="id"></field>
+                                <field name="name"></field> 
+                                <!-- 	<field name="is_active"></field> -->
+                                <field name="code"></field>
+                                <field name="cong_viec_cate_id"></field>
+                                <field name="don_vi"></field>
+                                <field name="do_phuc_tap"></field>
+                                <field name="thoi_gian_hoan_thanh"></field>
+                                <field name="diem" readonly="context.get('you_at_thu_vien_con')"></field>
+                            </group>
+                            <group>
+                                <field name="dot_xuat_hay_dinh_ky"></field>
+                                <field name="ghi_chu"></field>
+                                <field name="create_date"></field>
+                                <field name="write_date"></field>
+                                <field name="create_uid"></field>
+                                <field name="write_uid"></field>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="diem_percent" invisible="not context.get('you_at_thu_vien_con')"></field>
+                            <field name="parent_id" readonly="1"></field>
+                            <field name="valid_thu_vien"></field>
+                            <field name="children_ids" context="{'you_at_thu_vien_con':True}" attrs="{'invisible':[('co_cong_viec_cha','=',True)]}"></field>
+                            <field name="is_has_children"></field>
+                            <field name="co_cong_viec_cha"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="tvcv_list" model="ir.ui.view">
+            <field name="name">cong viec list</field>
+            <field name="model">tvcv</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <!--     <field name="is_active"></field> -->
+                    <field name="code"></field>
+                    <field name="cong_viec_cate_id"></field>
+                    <field name="don_vi"></field>
+                    <field name="do_phuc_tap"></field>
+                    <field name="thoi_gian_hoan_thanh"></field>
+                    <field name="diem"></field>
+                    <field name="dot_xuat_hay_dinh_ky"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="diem_percent"></field>
+                    <field name="parent_id"></field>
+                    <field name="valid_thu_vien"></field>
+                    <field name="co_cong_viec_cha"></field>
+                    <field name="children_ids"></field>
+                    <field name="is_has_children"></field>
+                    <field name="active"></field>
+                    <field name="create_date" string="Ngày giờ tạo"></field>
+                    <field name="write_date" string="Ngày giờ sửa"></field>
+                    <field name="create_uid" string="Người Tạo"></field>
+                    <field name="write_uid" string="Người Sửa"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="thuvientvcv_action">
+            <field name="name">Thư viện công việc (TVCV)</field>
+            <field name="res_model">tvcv</field>
+            <field name="context">{'search_default_group_cong_viec_cate_id': 1,'search_default_group_by_don_vi': 1}</field>
+            <field name="domain">['|',('active','=',True),('active','=',False)]</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- END THƯ VIỆN -->
+        <!-- IMPORT THƯ VIỆN -->
+        <record model="ir.ui.view" id="importthuvien_form">
+            <field name="name">import thu vien</field>
+            <field name="model">importthuvien</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="importthuvien" string="import thư viện" type="object" class="btn-primary" />
+                        <button name="import_strect" string="import_strect" type="object" class="btn-primary" />
+                        <button name="map_noc_voi_ltk" string="map_kiemke_voi_noc" type="object" class="btn-primary" />
+                        <button name="map_noc_voi_ltk" string="map NOC voi LTK" type="object" class="btn-primary" />
+                        <button name="map_noc_voi_kiemke" string="map NOC voi KK" type="object" class="btn-primary" />
+                        <button name="get_tram_from_sheet_name" string="get_tram_from_sheet_name" type="object" class="btn-primary" />
+                        <button name="trigger" string="trigger" type="object" class="btn-primary" />
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="filename" />
+                                <field name="file" filename="filename" />
+                            </group>
+                            <group>
+                                <field name="type_choose"></field>
+                                <field name="create_number"></field>
+                                <field name="update_number"></field>
+                                <field name="skipupdate_number"></field>
+                                <field name="write_date"></field>
+                                <field name="thong_bao_khac"></field>
+                                <field name="trigger_model"></field>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="importthuvien_list" model="ir.ui.view">
+            <field name="name">import thu vien</field>
+            <field name="model">importthuvien</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="id"></field>
+                    <field name="type_choose"></field>
+                    <field name="create_date"></field>
+                    <field name="write_date"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="importthuvien_action">
+            <field name="name">Import thư viện</field>
+            <field name="res_model">importthuvien</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!--  END IMPORT THƯ VIỆN -->
+        <!-- COMMENT -->
+        <!--  comment form -->
+        <record model="ir.ui.view" id="comment_form">
+            <field name="name">Comment Form</field>
+            <field name="model">comment</field>
+            <field name="arch" type="xml">
+                <form string="Comment Form">
+                    <sheet>
+                        <group>
+                        <group>
+                            <field name="noi_dung"></field>
+                            <field name="file_ids"></field>
+                            </group>
+                        <group>
+                         <field name="doitac_ids"></field> 
+                        
+                        </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
         
+        <record model="ir.ui.view" id="comment_list">
+            <field name="name">Comment list</field>
+            <field name="model">comment</field>
+            <field name="arch" type="xml">
+                <tree string="comment">
+                    <field name="noi_dung"></field>
+                    <field name="file_ids"></field>
+                    <field name="create_uid" string="Người comment"></field>
+                    <field name="create_date" string="Thời gian"></field>
+                </tree>
+            </field>
+        </record>
+        
+        <!--END COMMENT -->
+        <!-- GHI CHÚ CÔNG VIỆC -->
+        <record id="gccv_search" model="ir.ui.view">
+            <field name="name">gccv search</field>
+            <field name="model">gccv</field>
+            <field name="arch" type="xml">
+                <search string="Search SK">
+                    <field name="name"></field>
+                    <field name="noi_dung"></field>
+                    <field name="thanh_cong_hay_that_bai"></field>
+                    <field name="loi_code"></field>
+                    <field name="gccv_type_ids"></field>
+                    <field name="doi_lap_id"></field>
+                    <field name="doi_lap_ids"></field>
+                    <!-- <field name="cate_" /> -->
+                    <!--<filter string="sự cố" name="su_co" domain="[('cate_','=','Sự cố đứt quang')]" />
+                    
+                    
+                    <group expand="0" string="Group By">
+                        <filter string="group theo cate sự kiện " domain="[]" context="{'group_by':'cate_'}" />
+                    </group>
+                    -->
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="ghichucongviec_form">
+            <field name="name">gccv Form</field>
+            <field name="model">gccv</field>
+            <field name="arch" type="xml">
+                <form string="ghichucongvie Tree">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="noi_dung"></field>
+                            <field name="thanh_cong_hay_that_bai"></field>
+                            <field name="loi_code"></field>
+                            <field name="gccv_type_ids"></field>
+                            <field name="doi_lap_id"></field>
+                            <field name="doi_lap_ids"></field>
+                            <field name="thac_mac"></field>
+                            <field name="ket_qua_du_doan"></field>
+                            <field name="ket_qua_thuc_te"></field>
+                            <field name="dung_voi_ket_qua_du_doan"></field>
+                            <field name="image_truoc_test" widget="image" width="800"></field>
+                            <field name="image_sau_test" widget="image" width="800"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="ghichucongviec_list">
+            <field name="name">gccviec list</field>
+            <field name="model">gccv</field>
+            <field name="arch" type="xml">
+                <tree string="ghichucongviec">
+                    <field name="name"></field>
+                    <field name="noi_dung"></field>
+                    <field name="thanh_cong_hay_that_bai"></field>
+                    <field name="loi_code"></field>
+                    <field name="gccv_type_ids"></field>
+                    <field name="doi_lap_id"></field>
+                    <field name="doi_lap_ids"></field>
+                    <field name="image_truoc_test" widget="image"></field>
+                    <field name="image_sau_test" widget="image"></field>
+                    <field name="ket_qua_du_doan"></field>
+                    <field name="ket_qua_thuc_te"></field>
+                    <field name="dung_voi_ket_qua_du_doan"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="ghichucongviec_action">
+            <field name="name">Ghi chú công việc</field>
+            <field name="res_model">gccv</field>
+            <field name="view_mode">tree,form</field>
+            <!--   <field name="view_id" ref="suco_list2"></field>-->
+        </record>
+        <!-- END GHI CHÚ CÔNG VIỆC -->
+        <!-- LOẠI GHI CHÚ CÔNG VIỆC -->
+        <record model="ir.ui.view" id="ghichucongviectype_form">
+            <field name="name">Comment Form</field>
+            <field name="model">gccvtype</field>
+            <field name="arch" type="xml">
+                <form string="ghichucongvie Tree">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="minh_hoa"></field>
+                            <field name="parent_id"></field>
+                            <field name="gccv_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="ghichucongviectype_list">
+            <field name="name">gccviec list</field>
+            <field name="model">gccvtype</field>
+            <field name="arch" type="xml">
+                <tree string="ghichucongviec">
+                    <field name="name"></field>
+                    <field name="minh_hoa"></field>
+                    <field name="parent_id"></field>
+                    <field name="gccv_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="gccvtype_action">
+            <field name="name">Ghi chú công việc</field>
+            <field name="res_model">gccvtype</field>
+            <field name="view_mode">tree,form</field>
+            <!--   <field name="view_id" ref="suco_list2"></field>-->
+        </record>
+        <!-- END LOẠI GHI CHÚ CÔNG VIỆC -->
+        <!--PN -->
+        <record id="pn_search" model="ir.ui.view">
+            <field name="name">KK search</field>
+            <field name="model">pn</field>
+            <field name="arch" type="xml">
+                <search string="PN">
+                    <field name="name"></field>
+                    <field name="kiemke_ids"></field>
+                    <field name="vattu_ids"></field>
+                    <group expand="0" string="Group By">
+                        <filter string="group theo name" context="{'group_by':'name'}" />
+                        <filter string="group theo kiemke_ids" context="{'group_by':'kiemke_ids'}" />
+                        <filter string="group theo vattu_ids" context="{'group_by':'vattu_ids'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="pn_form">
+            <field name="name">PN Form</field>
+            <field name="model">pn</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="kiemke_ids"></field>
+                            <field name="vattu_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="pn_list">
+            <field name="name">pn list</field>
+            <field name="model">pn</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                    <field name="name"></field>
+                    <field name="kiemke_ids"></field>
+                    <field name="vattu_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="pn_action">
+            <field name="name">PN</field>
+            <field name="res_model">pn</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- PN -->
+        <!--KIỂM KÊ -->
+        <record id="kiemke_search" model="ir.ui.view">
+            <field name="name">KK search</field>
+            <field name="model">kiemke</field>
+            <field name="arch" type="xml">
+                <search string="Search kk">
+                    <field name="name"></field>
+                    <field name="so_the"></field>
+                    <field name="pn"></field>
+                    <field name="sn"></field>
+                    <field name="map_kknoc_id"></field>
+                    <field name="tram"></field>
+                    <!--<field name="duplicate_sn_vat_tu_ids"></field>-->
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="len_sn"></field>
+                    <field name="sn_false"></field>
+                    <filter name="sn" string="Có SN" domain="[('sn','!=',False)]"></filter>
+                    <filter name="sn" string="Không Có SN" domain="[('sn','=',False)]"></filter>
+                    <filter name="tram" string="NOT LTK" domain="[('tram','!=','LTK')]" />
+                    <filter name="map_kknoc_id" string="Có Map với NOC but NOTLTK" domain="[('map_kknoc_id','!=',False),('tram','!=','LTK')]" />
+                    <filter name="map_kknoc_id" string="Có Map với NOC" domain="[('map_kknoc_id','!=',False)]" />
+                    <filter name="map_ltk_id" string="Có Map với LTK" domain="[('map_ltk_id','!=',False)]" />
+                    <group expand="0" string="Group By">
+                        <filter string="group theo name" context="{'group_by':'name'}" />
+                        <filter string="group theo stt" context="{'group_by':'stt'}" />
+                        <filter string="group theo ten_vat_tu" context="{'group_by':'ten_vat_tu'}" />
+                        <filter string="group theo so_the" context="{'group_by':'so_the'}" />
+                        <filter string="group theo ma_du_an" context="{'group_by':'ma_du_an'}" />
+                        <filter string="group theo ten_du_an" context="{'group_by':'ten_du_an'}" />
+                        <filter string="group theo pn" context="{'group_by':'pn'}" />
+                        <filter string="group theo sn" context="{'group_by':'sn'}" />
+                        <filter string="group theo ma_vach" context="{'group_by':'ma_vach'}" />
+                        <filter string="group theo ma_vach_thuc_te" context="{'group_by':'ma_vach_thuc_te'}" />
+                        <filter string="group theo trang_thai" context="{'group_by':'trang_thai'}" />
+                        <filter string="group theo hien_trang_su_dung" context="{'group_by':'hien_trang_su_dung'}" />
+                        <filter string="group theo ghi_chu" context="{'group_by':'ghi_chu'}" />
+                        <filter string="group theo don_vi" context="{'group_by':'don_vi'}" />
+                        <filter string="group theo vi_tri_lap_dat" context="{'group_by':'vi_tri_lap_dat'}" />
+                        <filter string="group theo loai_tai_san" context="{'group_by':'loai_tai_san'}" />
+                        <filter string="group theo len_duplicate_sn_vat_tu_ids" context="{'group_by':'len_duplicate_sn_vat_tu_ids'}" />
+                        <filter string="group theo sn_false" context="{'group_by':'sn_false'}" />
+                        <filter string="group theo map_kknoc_id" context="{'group_by':'map_kknoc_id'}" />
+                        <filter string="group theo tram" context="{'group_by':'tram'}" />
+                        <filter string="group theo pn_id" context="{'group_by':'pn_id'}" />
+                        <filter string="group theo duplicate_sn_vat_tu_ids" context="{'group_by':'duplicate_sn_vat_tu_ids'}" />
+                        <filter string="group theo yes_no_search" context="{'group_by':'yes_no_search'}" />
+                        <filter string="group theo map_ltk_id" context="{'group_by':'map_ltk_id'}" />
+                        <filter string="group theo len_sn" context="{'group_by':'len_sn'}" />
+                        <filter string="group theo len_ilike_map_ltk_ids" context="{'group_by':'len_ilike_map_ltk_ids'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="kiemke_form">
+            <field name="name">KK Form</field>
+            <field name="model">kiemke</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="stt"></field>
+                            <field name="kiem_ke_id"></field>
+                            <field name="ten_vat_tu"></field>
+                            <field name="so_the"></field>
+                            <field name="ma_du_an"></field>
+                            <field name="ten_du_an"></field>
+                            <field name="pn"></field>
+                            <field name="sn"></field>
+                            <field name="len_sn"></field>
+                            <field name="ma_vach"></field>
+                            <field name="ma_vach_thuc_te"></field>
+                            <field name="trang_thai"></field>
+                            <field name="hien_trang_su_dung"></field>
+                            <field name="ghi_chu"></field>
+                            <field name="don_vi"></field>
+                            <field name="vi_tri_lap_dat"></field>
+                            <field name="loai_tai_san"></field>
+                            <field name="len_duplicate_sn_vat_tu_ids"></field>
+                            <field name="sn_false"></field>
+                            <field name="map_kknoc_id"></field>
+                            <field name="tram"></field>
+                            <field name="pn_id"></field>
+                            <field name="duplicate_sn_vat_tu_ids"></field>
+                            <field name="yes_no_search"></field>
+                            <field name="map_ltk_id"></field>
+                            <field name="ilike_map_kknoc_ids"></field>
+                            <field name="len_ilike_map_kknoc_ids"></field>
+                            <field name="ilike_map_ltk_ids"></field>
+                            <field name="len_ilike_map_ltk_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="kiemke_list">
+            <field name="name">kiemke list</field>
+            <field name="model">kiemke</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                    <field name="name"></field>
+                    <field name="stt"></field>
+                    <field name="ten_vat_tu"></field>
+                    <field name="so_the"></field>
+                    <field name="ma_du_an"></field>
+                    <field name="ten_du_an"></field>
+                    <field name="pn"></field>
+                    <field name="sn"></field>
+                    <field name="len_sn"></field>
+                    <!-- 	<field name="ma_vach"></field>
+					<field name="ma_vach_thuc_te"></field>
+					<field name="trang_thai"></field>
+					<field name="hien_trang_su_dung"></field>
+					<field name="ghi_chu"></field>
+					<field name="don_vi"></field>
+					<field name="vi_tri_lap_dat"></field>
+					<field name="loai_tai_san"></field> -->
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="sn_false"></field>
+                    <field name="map_kknoc_id"></field>
+                    <field name="ilike_map_kknoc_ids"></field>
+                    <field name="len_ilike_map_kknoc_ids"></field>
+                    <field name="ilike_map_ltk_ids"></field>
+                    <field name="len_ilike_map_ltk_ids"></field>
+                    <field name="map_ltk_id"></field>
+                    <field name="tram"></field>
+                    <field name="don_vi"></field>
+                    <field name="vi_tri_lap_dat"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="kiemke_action">
+            <field name="name">Kiểm kê kế toán</field>
+            <field name="res_model">kiemke</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- Kiem Ke -->
+        <!--VẬT TƯ -->
+        <record id="vattu_search" model="ir.ui.view">
+            <field name="name">KK search</field>
+            <field name="model">vattu</field>
+            <field name="arch" type="xml">
+                <search string="Search vattu">
+                    <field name="name"></field>
+                    <field name="phan_loai"></field>
+                    <field name="loai_card"></field>
+                    <field name="he_thong"></field>
+                    <field name="cabinet_rack"></field>
+                    <field name="shelf"></field>
+                    <field name="stt_shelf"></field>
+                    <field name="slot"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="pn"></field>
+                    <field name="pn_id"></field>
+                    <field name="sn"></field>
+                    <field name="map_kiem_ke_id"></field>
+                    <field name="is_not_also_map_pn"></field>
+                    <!--<field name="duplicate_sn_vat_tu_ids"></field>-->
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="sn_false"></field>
+                    <filter name="sn" string="Có SN" domain="[('sn','!=',False)]"></filter>
+                    <filter name="sn" string="Không Có SN" domain="[('sn','=',False)]"></filter>
+                    <filter name="map_kiem_ke_id" string="Có Map với Kiểm Kê" domain="[('map_kiem_ke_id','!=',False)]" />
+                    <filter name="map_kiem_ke_id" string="Có Map với Noc" domain="[('map_kknoc_id','!=',False)]" />
+                    <group expand="0" string="Group By">
+                        <filter string="group theo name" context="{'group_by':'name'}" />
+                        <filter string="group theo phan_loai" context="{'group_by':'phan_loai'}" />
+                        <filter string="group theo loai_card" context="{'group_by':'loai_card'}" />
+                        <filter string="group theo he_thong" context="{'group_by':'he_thong'}" />
+                        <filter string="group theo cabinet_rack" context="{'group_by':'cabinet_rack'}" />
+                        <filter string="group theo shelf" context="{'group_by':'shelf'}" />
+                        <filter string="group theo stt_shelf" context="{'group_by':'stt_shelf'}" />
+                        <filter string="group theo slot" context="{'group_by':'slot'}" />
+                        <filter string="group theo ghi_chu" context="{'group_by':'ghi_chu'}" />
+                        <filter string="group theo pn" context="{'group_by':'pn'}" />
+                        <filter string="group theo sn" context="{'group_by':'sn'}" />
+                        <filter string="group theo sn" context="{'group_by':'tram'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="vattu_form">
+            <field name="name">KK Form</field>
+            <field name="model">vattu</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                            <field name="stt"></field>
+                            <field name="name"></field>
+                            <field name="phan_loai"></field>
+                            <field name="loai_card"></field>
+                            <field name="he_thong"></field>
+                            <field name="cabinet_rack"></field>
+                            <field name="shelf"></field>
+                            <field name="stt_shelf"></field>
+                            <field name="slot"></field>
+                            <field name="ghi_chu"></field>
+                            <field name="pn"></field>
+                            <field name="pn_id"></field>
+                            <field name="sn"></field>
+                            <field name="map_kiem_ke_id"></field>
+                            <field name="map_kknoc_id"></field>
+                            <field name="is_not_also_map_pn"></field>
+                            <field name="len_duplicate_sn_vat_tu_ids"></field>
+                            <field name="sn_false"></field>
+                            <field name="ilike_map_kk_ids"></field>
+                            <field name="len_ilike_map_kk_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="vattu_list">
+            <field name="name">vattu list</field>
+            <field name="model">vattu</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                    <field name="stt"></field>
+                    <field name="name"></field>
+                    <field name="phan_loai"></field>
+                    <field name="loai_card"></field>
+                    <field name="he_thong"></field>
+                    <field name="cabinet_rack"></field>
+                    <field name="shelf"></field>
+                    <field name="stt_shelf"></field>
+                    <field name="slot"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="pn"></field>
+                    <field name="pn_id"></field>
+                    <field name="sn"></field>
+                    <field name="map_kiem_ke_id"></field>
+                    <field name="ilike_map_kk_ids"></field>
+                    <field name="len_ilike_map_kk_ids"></field>
+                    <field name="map_kknoc_id"></field>
+                    <field name="tram"></field>
+                    <field name="is_not_also_map_pn"></field>
+                    <!--<field name="duplicate_sn_vat_tu_ids"></field>-->
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="sn_false"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="vattu_action">
+            <field name="name">Vật tư</field>
+            <field name="res_model">vattu</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- VẬT TƯ -->
+        <!--kknoc -->
+        <record id="kknoc_search" model="ir.ui.view">
+            <field name="name">kknoc search</field>
+            <field name="model">kknoc</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"></field>
+                    <field name="stt"></field>
+                    <field name="pn"></field>
+                    <field name="clei"></field>
+                    <field name="sn"></field>
+                    <field name="pn_id"></field>
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="sn_false"></field>
+                    <field name="data"></field>
+                    <field name="sheet_name"></field>
+                    <field name="file_name"></field>
+                    <field name="tram"></field>
+                    <field name="map_ltk_id"></field>
+                    <filter name="sn" string="Có SN" domain="[('sn','!=',False)]"></filter>
+                    <filter name="sn" string="Không Có SN" domain="[('sn','=',False)]"></filter>
+                    <filter name="tram" string="Trạm LTK" domain="[('tram','ilike','ltk')]"></filter>
+                    <filter name="map_ltk_id" domain="[('map_ltk_id','!=',False)]"></filter>
+                    <filter name="map_kiemke_id" domain="[('map_kiemke_id','!=',False)]"></filter>
+                    <group expand="0" string="Group By">
+                        <filter string="group theo name" context="{'group_by':'name'}" />
+                        <filter string="group theo stt" context="{'group_by':'stt'}" />
+                        <filter string="group theo pn" context="{'group_by':'pn'}" />
+                        <filter string="group theo sn" context="{'group_by':'sn'}" />
+                        <filter string="group theo pn_id" context="{'group_by':'pn_id'}" />
+                        <filter string="group theo len_duplicate_sn_vat_tu_ids" context="{'group_by':'len_duplicate_sn_vat_tu_ids'}" />
+                        <filter string="group theo sn_false" context="{'group_by':'sn_false'}" />
+                        <filter string="group theo data" context="{'group_by':'data'}" />
+                        <filter string="group theo file_name" context="{'group_by':'file_name'}" />
+                        <filter string="group theo sheet_name" context="{'group_by':'sheet_name'}" />
+                        <filter string="group theo tram" context="{'group_by':'tram'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="pn_form">
+            <field name="name">kknoc Form</field>
+            <field name="model">kknoc</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="stt"></field>
+                            <field name="pn"></field>
+                            <field name="clei"></field>
+                            <field name="sn"></field>
+                            <field name="pn_id"></field>
+                            <field name="len_duplicate_sn_vat_tu_ids"></field>
+                            <field name="sn_false"></field>
+                            <field name="data"></field>
+                            <field name="sheet_name"></field>
+                            <field name="file_name"></field>
+                            <field name="tram"></field>
+                            <field name="map_ltk_id"></field>
+                            <field name="ilike_map_kk_ids"></field>
+                            <field name="len_ilike_map_kk_ids"></field>
+                            <field name="ilike_map_vattu_ids"></field>
+                            <field name="len_ilike_map_vattu_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="kknoc_list">
+            <field name="name">kknoc list</field>
+            <field name="model">kknoc</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                    <field name="name"></field>
+                    <field name="stt"></field>
+                    <field name="pn"></field>
+                    <field name="clei"></field>
+                    <field name="sn"></field>
+                    <field name="pn_id"></field>
+                    <field name="len_duplicate_sn_vat_tu_ids"></field>
+                    <field name="sn_false"></field>
+                    <field name="data"></field>
+                    <field name="sheet_name"></field>
+                    <field name="file_name"></field>
+                    <field name="tram"></field>
+                    <field name="map_kiemke_id"></field>
+                    <field name="map_ltk_id"></field>
+                    <!-- <field name="ilike_map_kk_ids"></field> -->
+                    <field name="len_ilike_map_kk_ids"></field>
+                    <!-- <field name="ilike_map_vattu_ids"></field> -->
+                    <field name="len_ilike_map_vattu_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="kknoc_action">
+            <field name="name">KK Noc</field>
+            <field name="res_model">kknoc</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="comment_action">
+            <field name="name">Comment</field>
+            <field name="res_model">comment</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- kknoc -->
+        <!--  Sale config -->
+        
+        <record id="ltk_config_settings_view" model="ir.ui.view">
+        <field name="name">ltk.config.settings</field>
+        <field name="model">ltk.config.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configure Sales" class="oe_form_configuration" name="sale_config_form">
+                <header>
+                    <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                    <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+                </header>
+                <sheet>
+                <group>
+                 <field name="group_time_allow_field_edit_group" widget="radio"></field>
+                 <field name="is_cam_sua_do_time"></field>
+                 <field name="allow_edit_time"></field>
+                 <field name="is_cam_sua_truoc_ngay"></field>
+				 <field name="cam_sua_truoc_ngay"></field>
+                 
+                 </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ltk_config_settings_action" model="ir.actions.act_window">
+        <field name="name">Configure Sales</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ltk.config.settings</field>
+      <!--   <field name="view_id" ref="view_sale_config_settings"/> -->
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+    </record>
+    
+    
+        <!--  end sale config -->
+        
+         <!--  doi tac --> -->
+        <record id="doitac_search" model="ir.ui.view">
+            <field name="name">doitac  search</field>
+            <field name="model">doitac</field>
+            <field name="arch" type="xml">
+                <search>
+                   <field name="name"></field>
+<field name="cty_id"></field>
+<field name="chuc_vu"></field>
+
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="doitacc_form">
+            <field name="name">doitac Form</field>
+            <field name="model">doitac</field>
+            <field name="arch" type="xml">
+                <form string="kk ">
+                    <sheet>
+                        <group>
+                              <field name="name"></field>
+<field name="cty_id"></field>
+<field name="chuc_vu"></field>
+
+            
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="doitac_list">
+            <field name="name">doi tac list</field>
+            <field name="model">doitac</field>
+            <field name="arch" type="xml">
+                <tree string="kk">
+                  <field name="name"></field>
+<field name="cty_id"></field>
+<field name="chuc_vu"></field>
+
+
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="doitac_action">
+            <field name="name"> Đối Tác</field>
+            <field name="res_model">doitac</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+       
+        <!-- end doi tac-->
+        
+        <menuitem name="Kiểm Kê" id="kiemke_icon" sequence="1" />
+        <menuitem name="Vật Tư LTK" id="vattu_menu" parent="kiemke_icon" sequence="1" action="vattu_action" />
+        <menuitem name="kế toán kiểm kê" id="kiemke_menu" parent="kiemke_icon" sequence="1" action="kiemke_action" />
+        <menuitem name="KKNOC" id="kknoc_menu" parent="kiemke_icon" sequence="1" action="kknoc_action" />
+        <menuitem name="PN" id="pn_menu" parent="kiemke_icon" sequence="1" action="pn_action" />
+        <!-- Ghi chu cong viec -->
+        <menuitem name="Ghi chú công việc menu" id="ghichucongviec_icon" sequence="1" />
+        <menuitem name="Ghi chú công việc" id="ghichucongviec_menu" parent="ghichucongviec_icon" sequence="1" action="ghichucongviec_action" />
+        <menuitem name="Loại ghi chú" id="ghichucongviec_type_menu" parent="ghichucongviec_icon" sequence="2" action="gccvtype_action" />
+        <!-- import icon -->
+        <menuitem name="Import" id="import_icon" sequence="1" groups="base.group_erp_manager" />
+        <menuitem id="import_tvcv_menu" parent="import_icon" action="importthuvien_action" sequence="1"></menuitem>
+        <!-- Công việc/ Ca Trực -->
+        <menuitem name="Công Việc/Trực" id="ctrtvcv_icon" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
+        <menuitem name="Ca trực Menu" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="1"></menuitem>
+        <menuitem name="Ca trực" id="ctr_menu" parent="ctrmenu_menu" action="ctr_action" sequence="1"></menuitem>
+        <menuitem id="suco_menu" parent="ctrmenu_menu" action="suco_action" sequence="2"></menuitem>
+        <menuitem id="suvu_ke_thua_menu" parent="ctrmenu_menu" action="suvu_lay_cac_view_ke_thua_action" sequence="4"></menuitem>
+        <menuitem name=" Công Việc menu" id="menu_menu" parent="ctrtvcv_icon" sequence="2"></menuitem>
+        <menuitem name=" Công Việc" id="cvi_menu" parent="menu_menu" action="action_dynamic_domain" sequence="1"></menuitem>
+        <menuitem id="tvcv_menu" parent="menu_menu" action="thuvientvcv_action" sequence="2"></menuitem>
+        <menuitem name="Cấu hình" id="config_menu" parent="ctrtvcv_icon" action="ltk_config_settings_action" sequence="3"></menuitem>
+        <menuitem name="Users(Nhân viên)" id="users_menu" parent="ctrtvcv_icon" action="users_action" sequence="3"></menuitem>
+        <menuitem id="congty_menu" parent="ctrtvcv_icon" action="congty_action" sequence="4"></menuitem>
+        <menuitem name="Đối Tác" id="doitac_menu" parent="ctrtvcv_icon" action="doitac_action" sequence="3"></menuitem>
+        <menuitem id="file_menu" parent="ctrtvcv_icon" action="file_action" sequence="6"></menuitem>
+        <menuitem id="comment_menu" parent="ctrtvcv_icon" action="comment_action" sequence="6"></menuitem>
     </data>
 </openerp>

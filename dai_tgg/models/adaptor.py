@@ -20,7 +20,9 @@ class PortThietBi(models.Model):
     @api.depends('ada_ids')
     def ada_id_(self):
         for r in self:
-            r.ada_id = r.ada_ids[0]
+            if r.ada_ids:
+                r.ada_id = r.ada_ids[0]
+                
     @api.depends('port_name','thiet_bi_id')
     def _name_compute(self):
         for r in self:

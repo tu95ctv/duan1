@@ -1,123 +1,310 @@
 <openerp>
-  <data>
-  <record id="bds_search" model="ir.ui.view">
+    <data>
+        <record id="bds_search" model="ir.ui.view">
             <field name="name">sale.order.list.select</field>
             <field name="model">bds.bds</field>
             <field name="arch" type="xml">
                 <search string="bds search">
                     <field name="name"></field>
-					<field name="title"></field>
-					<field name="gia"></field>
-					<field name="link"></field>
-					<field name="ngay_dang"></field>
-					<field name="html"></field>
-                    <separator/>
+                    <field name="title"></field>
+                    <field name="gia"></field>
+                    <field name="link"></field>
+                    <field name="ngay_dang"></field>
+                    <field name="html"></field>
+                    <field name="user_name"></field>
+                    <field name="name_tong_hop"></field>
+                    <field name="siteleech_id"></field>
+                    <field name="quan_id"></field>
+                    <separator />
+                    <filter name="less than 4 post" string="less than 4 post " domain="[('count_post_all_site','&lt;=',4)]" />
+                    <filter name="2-3 tỷ" string="2-3 tỷ" domain="[('gia','&lt;=', 3), ('gia','&gt;=', 2)]" />
+                    <filter name="2-4 tỷ" string="2-4 tỷ" domain="[('gia','&lt;=', 4), ('gia','&gt;=', 2)]" />
+                    <filter name="4-6 tỷ" string="4-6 tỷ quận 10, less 3" domain="[('count_post_all_site','&lt;=',2),('quan_id','ilike', 'Quận 10'),('gia','&lt;=', 6), ('gia','&gt;=', 4),('ngay_dang','&lt;', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]" />
+                    <filter name="4-6 tỷ" string="4-6 tỷ quận 10, less 4" domain="[('count_post_all_site','&lt;=',3),('quan_id','ilike', 'Quận 10'),('gia','&lt;=', 6), ('gia','&gt;=', 4),('ngay_dang','&lt;', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]" />
+                    <filter name="4-6 tỷ" string="4-6 tỷ quận 10, less 5" domain="[('count_post_all_site','&lt;=',4),('quan_id','ilike', 'Quận 10'),('gia','&lt;=', 6), ('gia','&gt;=', 4),('ngay_dang','&lt;', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]" />
+                    <filter name="3-10 tỷ" string="1-10 tỷ quận TPhu,TB,11, less 3 " domain="['|','|',('quan_id','ilike', 'Tân phú'),('quan_id','ilike', 'Tân Bình'),('quan_id','ilike', 'Quận 11'),('count_post_all_site','&lt;=',3),('gia','&lt;=', 6), ('gia','&gt;=', 2),('ngay_dang','&lt;', ((context_today()+datetime.timedelta(days=1)).strftime('%Y-%m-%d')))]" />
+                    <filter name=" &lt; 5 tỷ" string=" &lt; 5 tỷ" domain="[('gia','&lt;=', 5)]" />
+                    <filter name="&gt;2tỷ" string="&gt;2tỷ" domain="[('gia','&gt;=', 2)]" />
                     <filter name="thisweek" string="This Week" domain="[('ngay_dang','&lt;=', (context_today().strftime('%Y-%m-%d'))), ('ngay_dang','&gt;=', ((context_today()-datetime.timedelta(days=7)).strftime('%Y-%m-%d')))]" help="Pickings that are late on scheduled time" />
                     <filter name="thismonth" string="This Month" domain="[('ngay_dang','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('ngay_dang','&gt;=',time.strftime('%Y-%m-01'))]" help="Pickings that are late on scheduled time" />
                     <filter name="thisyear" string="This Year" domain="[('ngay_dang','&lt;',(context_today()+relativedelta(years=1)).strftime('%Y-%m-01')), ('ngay_dang','&gt;=',time.strftime('%Y-%m-01'))]" help="Pickings that are late on scheduled time" />
-                   
-               </search>
+                    <group expand="0" string="Group By">
+                        <filter string="groupby quan" domain="[]" context="{'group_by':'quan_id'}" />
+                    </group>
+                </search>
             </field>
         </record>
-        
-        
-        
-    <!-- explicit list view definition -->
-    <record id="bds_form" model="ir.ui.view">
+        <!-- explicit list view definition -->
+        <record id="bds_form" model="ir.ui.view">
             <field name="name">bds</field>
             <field name="model">bds.bds</field>
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                    <group>
-                  <field name="name"></field>
-					<field name="title"></field>
-					<field name="gia"></field>
-					<field name="ngay_dang"></field>
-					<field name="quan_id"></field>
-					<field name="phuong_id"></field>
-					<field name="link"></field>
-					<field name="poster_id"></field>
-					<field name="fetch_ids"></field>
-					<field name="html"></field>
-                  </group>
+                        <group>
+                            <field name="name"></field>
+                            <field name="present_image_link"></field>
+                            <field name="present_image_link_show" widget="image" width="310"></field>
+                            <field name="title"></field>
+                            <field name="gia"></field>
+                            <field name="ngay_dang"></field>
+                            <field name="quan_id"></field>
+                            <field name="phuong_id"></field>
+                            <field name="link"></field>
+                            <field name="cho_tot_link_fake"></field>
+                            <field name="poster_id"></field>
+                            <field name="count_post_all_site"></field>
+                            <field name="address"></field>
+                            <field name="post_ids_of_user"></field>
+                            <field name="gia_chat"></field>
+                            <field name="quan_tam"></field>
+                            <field name="goi_dien_cho_co"></field>
+                            <field name="hen_di_xem_time"></field>
+                            <field name="da_xem_time"></field>
+                            <field name="ghi_chu"></field>
+                            <field name="siteleech_id"></field>
+                            <field name="html"></field>
+                        </group>
                     </sheet>
-                    </form>
-               </field>
-         </record>
-         
-         
-    <record model="ir.ui.view" id="bds.list">
-      <field name="name">bds list</field>
-      <field name="model">bds.bds</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="name"></field>
-			<field name="title"></field>
-			<field name="gia"></field>
-			<field name="area"></field>
-			<field name="quan_id"></field>
-			<field name="phuong_id"></field>
-			<field name="ngay_dang"></field>
-			<field name="link"></field>
-			<field name="poster_id"></field>
-        </tree>
-      </field>
-    </record>
-    
-
-    <!-- actions opening views on models -->
-   
-    <record model="ir.actions.act_window" id="bds.action_window">
-      <field name="name">bds window</field>
-      <field name="res_model">bds.bds</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-    
-    
-    
-    <!-- explicit list view definition -->
-    <record id="poster_form" model="ir.ui.view">
-            <field name="name">poster form</field>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bds.list">
+            <field name="name">bds list</field>
+            <field name="model">bds.bds</field>
+            <field name="arch" type="xml">
+                <tree default_order="ngay_dang DESC">
+                    <field name="name"></field>
+                    <field name="present_image_link" widget="image" height="50"></field>
+                    <field name="present_image_link_show" widget="image" height="50"></field>
+                    <field name="title"></field>
+                    <field name="gia"></field>
+                    <field name="poster_id"></field>
+                    <field name="gia_chat"></field>
+                    <field name="quan_tam"></field>
+                    <field name="ngay_dang"></field>
+                    <field name="area"></field>
+                    <field name="address"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="write_date"></field>
+                    <field name="create_date"></field>
+                    <field name="quan_id"></field>
+                    <field name="phuong_id"></field>
+                    <field name="link"></field>
+                    <field name="siteleech_id"></field>
+                    <field name="cho_tot_link_fake"></field>
+                    <field name="count_post_of_poster"></field>
+                    <field name="count_post_of_poster_bds"></field>
+                    <field name="count_post_all_site"></field>
+                    <field name="goi_dien_cho_co"></field>
+                    <field name="hen_di_xem_time"></field>
+                    <field name="da_xem_time"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="user_name"></field>
+                </tree>
+            </field>
+        </record>
+        <!-- actions opening views on models -->
+        <record model="ir.actions.act_window" id="bds.action_window">
+            <field name="name">bds window</field>
+            <field name="res_model">bds.bds</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="poster_search" model="ir.ui.view">
+            <field name="name">bds poster</field>
             <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <search string="poster search">
+                    <field name="name"></field>
+                    <field name="name_tong_hop"></field>
+                    <field name="contact_address"></field>
+                    <field name="ten_luu_trong_danh_ba"></field>
+                    <field name="mycontact_id"></field>
+                    <field name="quan_id_for_search"></field>
+                    <field name="phuong_id"></field>
+                    <field name="dan_bac_ky"></field>
+                    <field name="ngat_may_giua_chung"></field>
+                    <field name="nghi_ngo_minh_la_mo_gioi"></field>
+                    <field name="da_ket_ban_zalo"></field>
+                    <field name="do_nhiet_tinh"></field>
+                    <field name="do_tuoi"></field>
+                    <field name="cong_ty"></field>
+                    <field name="nhaGuiChoMoGioiLine_ids"></field>
+                    <field name="phone"></field>
+                    <field name="nha_mang"></field>
+                    <field name="login"></field>
+                    <field name="post_ids"></field>
+                    <field name="name_tong_hop"></field>
+                    <filter name="count quan 10 gt 10" string="quan 10 gt 10 post" domain="[('count_quan_10','&gt;=',10)]" />
+                    <group expand="0" string="Group By">
+                        <filter string="groupby nha mang" domain="[]" context="{'group_by':'nha_mang'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record id="sms_form" model="ir.ui.view">
+            <field name="name">sms</field>
+            <field name="model">bds.sms</field>
+            <field name="priority" eval="1" />
             <field name="arch" type="xml">
                 <form>
                     <sheet>
-                    <group>
-                  <field name="name"></field>
-					<field name="contact_address"></field>
+                        <group>
+                            <field name="name"></field>
+                            <field name="noi_dung"></field>
+                            <field name="getphoneposter_ids"></field>
+                            <field name="poster_ids"></field>
+                            <field name="test_depend_through"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- explicit list view definition -->
+        <record id="poster_form" model="ir.ui.view">
+            <field name="name">poster form</field>
+            <field name="model">res.users</field>
+            <field name="priority" eval="1" />
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="avg" string="avg price " type="object" class="btn-primary" />
+                    </header>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"></field>
+                        </h1>
+                    </div>
+                    <sheet>
+                        <group>
+                            <field name="exclude_sms_ids"></field>
+                            <field name="min_price"></field>
+                            <field name="avg_price"></field>
+                            <field name="max_price"></field>
+                            <field name="contact_address"></field>
+                            <field name="count_quan_1"></field>
+                            <field name="count_quan_3"></field>
+                            <field name="count_quan_5"></field>
+                            <field name="count_quan_10"></field>
+                            <field name="count_tan_binh"></field>
+                            <field name="avg_quan_1"></field>
+                            <field name="avg_quan_3"></field>
+                            <field name="avg_quan_5"></field>
+                            <field name="avg_quan_10"></field>
+                            <field name="avg_tan_binh"></field>
+                            <field name="trang_thai_lien_lac"></field>
+                            <field name="da_goi_dien_hay_chua"></field>
+                            <field name="co_khach_368"></field>
+                            <field name="co_khach_353"></field>
+                            <field name="name_tong_hop"></field>
+                            <field name="nha_mang"></field>
+                            <field name="count_post_of_poster_chotot"></field>
+                            <field name="count_post_of_poster_bds"></field>
+                            <field name="count_post_all_site"></field>
+                            <field name="ten_luu_trong_danh_ba"></field>
+                            <field name="mycontact_id"></field>
+                            <field name="dan_bac_ky"></field>
+                            <field name="ngat_may_giua_chung"></field>
+                            <field name="nghi_ngo_minh_la_mo_gioi"></field>
+                            <field name="da_ket_ban_zalo"></field>
+                            <field name="do_nhiet_tinh"></field>
+                            <field name="do_tuoi"></field>
+                            <field name="cong_ty"></field>
+                            <field name="nhaGuiChoMoGioiLine_ids"></field>
+                            <field name="ghi_chu"></field>
+                            <field name="getphoneposter_ids"></field>
+                            <field name="sms_ids"></field>
+                            <field name="username_in_site_ids">
+                                <tree>
+                                    <field name="username_in_site"></field>
+                                    <field name="site_id"></field>
+                                </tree>
+                            </field>
+                            <field name="phone"></field>
+                            <field name="login"></field>
+                            <field name="quanofposter_ids">
+                                <tree>
+                                    <field name="name"></field>
+                                    <field name="quan_id"></field>
+                                    <field name="siteleech_id"></field>
+                                    <field name="quantity"></field>
+                                    <field name="min_price"></field>
+                                    <field name="avg_price"></field>
+                                    <field name="max_price"></field>
+                                    <field name="poster_id"></field>
+                                </tree>
+                            </field>
+                            <field name="post_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="poster_list">
+            <field name="name">poster list</field>
+            <field name="model">res.users</field>
+            <field name="priority">3</field>
+            <field name="arch" type="xml">
+                <tree decoration-danger="count_quan_10&gt;15" decoration-info="is_recent==True">
+                    <field name="id"></field>
+                    <field name="name"></field>
+                    <field name="name_tong_hop"></field>
+                    <field name="contact_address"></field>
+                    <field name="ten_luu_trong_danh_ba"></field>
+                    <field name="min_price"></field>
+                    <field name="avg_price"></field>
+                    <field name="max_price"></field>
+                    <field name="mycontact_id"></field>
+                    <field name="count_post_of_poster_chotot"></field>
+                    <field name="count_post_of_poster_bds"></field>
+                    <field name="count_post_all_site"></field>
+                    <!--  <field name="quanofposter_ids" widget="many2many_tags"></field>-->
+                    <field name="quanofposter_ids_show"></field>
+                    <field name="quan_quantity"></field>
+                    <field name="create_date"></field>
+                    <field name="is_recent"></field>
+                    <field name="sms_ids"></field>
+                    <field name="write_date"></field>
+                    <field name="exclude_sms_ids"></field>
+                    <field name="count_quan_1"></field>
+                    <field name="count_quan_3"></field>
+                    <field name="count_quan_5"></field>
+                    <field name="count_quan_10"></field>
+                    <field name="trang_thai_lien_lac"></field>
+                    <field name="da_goi_dien_hay_chua"></field>
+                    <field name="co_khach_368"></field>
+                    <field name="co_khach_353"></field>
+                    <field name="count_tan_binh"></field>
+                    <field name="avg_quan_1"></field>
+                    <field name="avg_quan_3"></field>
+                    <field name="avg_quan_5"></field>
+                    <field name="avg_quan_10"></field>
+                    <field name="avg_tan_binh"></field>
+                    <field name="dan_bac_ky"></field>
+                    <field name="ngat_may_giua_chung"></field>
+                    <field name="nghi_ngo_minh_la_mo_gioi"></field>
+                    <field name="da_ket_ban_zalo"></field>
+                    <field name="do_nhiet_tinh"></field>
+                    <field name="do_tuoi"></field>
+                    <field name="cong_ty"></field>
+                    <field name="nhaGuiChoMoGioiLine_ids"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="username_in_site_ids"></field>
+                    <field name="site_count_of_poster"></field>
                     <field name="phone"></field>
+                    <field name="nha_mang"></field>
                     <field name="login"></field>
                     <field name="post_ids"></field>
-                  </group>
-                    </sheet>
-                    </form>
-               </field>
-         </record>
-         
-         
-    <record model="ir.ui.view" id="poster_list">
-      <field name="name">bds list</field>
-      <field name="model">res.users</field>
-      <field name="arch" type="xml">
-        <tree>
-          	<field name="contact_address"></field>
-            <field name="phone"></field>
-            <field name="login"></field>
-            <field name="post_ids"></field>
-        </tree>
-      </field>
-    </record>
-    
-    
-    <record model="ir.actions.act_window" id="poster_action">
-      <field name="name">poster window</field>
-      <field name="res_model">res.users</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-    
-    
-    <record id="users_form_for_action_d4" model="ir.actions.act_window.view">
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="poster_action">
+            <field name="name">poster window</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'yesterday': (context_today()-datetime.timedelta(days=1)).strftime('%Y-%m-%d')}</field>
+        </record>
+        <record id="users_form_for_action_d4" model="ir.actions.act_window.view">
             <field eval="2" name="sequence" />
             <field name="view_mode">form</field>
             <field name="view_id" ref="poster_form" />
@@ -129,80 +316,283 @@
             <field name="view_id" ref="poster_list" />
             <field name="act_window_id" ref="bds.poster_action" />
         </record>
-        
-        
-    
-    
-    <record id="fetch_form" model="ir.ui.view">
+        <record id="fetch_form" model="ir.ui.view">
             <field name="name">fetch</field>
             <field name="model">bds.fetch</field>
             <field name="arch" type="xml">
                 <form>
-                <header>
+                    <header>
                         <button name="fetch" string="fetch ahaha" type="object" class="btn-primary" />
                         <button name="group_quan" string="group" type="object" class="btn-primary" />
+                        <button name="thread" string="thread" type="object" class="btn-primary" />
                     </header>
                     <sheet>
-                    <group>
-                  <field name="url"></field>
-		<field name="url_id"></field>
-		<field name="name"></field>
-		<field name="link"></field>
-		<field name="quan_id"></field>
-		<field name="phuong_ids"></field>
-		<field name="page_end"></field>
-		<field name="link_number"></field>
-		<field name="update_link_number"></field>
-		<field name="create_link_number"></field>
-		<field name="bds_ids"></field>
-                  </group>
+                        <group>
+                            <!-- 
+                <field name="url"></field>
+			<field name="url_id"></field> -->
+                            <field name="url_ids"></field>
+                            <field name="current_url_id_circle_fetch"></field>
+                            <field name="name"></field>
+                            <field name="update_field_of_existing_recorder"></field>
+                            <field name="link"></field>
+                            <field name="web_last_page_number"></field>
+                            <field name="page_begin"></field>
+                            <field name="set_page_end"></field>
+                            <field name="thread_step"></field>
+                            <field name="thread_number"></field>
+                            <field name="link_number"></field>
+                            <field name="update_link_number"></field>
+                            <field name="create_link_number"></field>
+                            <field name="existing_link_number"></field>
+                            <field name="bds_ids_quantity"></field>
+                            <field name="phuong_ids"></field>
+                            <field name="quan_ids"></field>
+                            <field name="bds_ids"></field>
+                            <field name="test_cronfield"></field>
+                            <field name="per_page"></field>
+                            <field name="note"></field>
+                        </group>
                     </sheet>
-                    </form>
-               </field>
-         </record>
-    <record model="ir.actions.act_window" id="fetch_action">
-      <field name="name">fetch window</field>
-      <field name="res_model">bds.fetch</field>
-      <field name="view_mode">tree,form</field>
-    </record>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="fetch_list">
+            <field name="name">bds list</field>
+            <field name="model">bds.fetch</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="id"></field>
+                    <field name="name"></field>
+                    <!-- 
+          <field name="url"></field>
+			<field name="url_id"></field>
+			 -->
+                    <field name="url_ids"></field>
+                    <field name="link"></field>
+                    <field name="set_page_end"></field>
+                    <field name="thread_number"></field>
+                    <field name="link_number"></field>
+                    <field name="update_link_number"></field>
+                    <field name="create_link_number"></field>
+                    <field name="existing_link_number"></field>
+                    <field name="bds_ids_quantity"></field>
+                    <field name="test_cronfield"></field>
+                    <field name="per_page"></field>
+                    <field name="note"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="url_list">
+            <field name="name">bds urlcate</field>
+            <field name="model">bds.urlcate</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="id"></field>
+                    <field name="name"></field>
+                    <field name="description"></field>
+                    <field name="web_last_page_number"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="fetch_action">
+            <field name="name">fetch window</field>
+            <field name="res_model">bds.fetch</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="getphoneposter_action">
+            <field name="name">get phone</field>
+            <field name="res_model">bds.getphoneposter</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="luong_tree" model="ir.ui.view">
+            <field name="name">luong</field>
+            <field name="model">bds.luong</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="threadname"></field>
+                    <field name="urlcate_id"></field>
+                    <field name="current_page"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="fetch_tree" model="ir.ui.view">
+            <field name="name">bds fetch list</field>
+            <field name="model">bds.fetch</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <field name="url_id"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="error_form" model="ir.ui.view">
+            <field name="name">error</field>
+            <field name="model">bds.error</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="url"></field>
+                    <field name="code"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="importcontact_form" model="ir.ui.view">
+            <field name="name">Export ADA form</field>
+            <field name="model">bds.importcontact</field>
+            <field name="arch" type="xml">
+                <form string="Import quan huyen">
+                    <sheet>
+                        <group>
+                            <field name="file"></field>
+                            <field name="land_contact_saved_number"></field>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="import_contact" string="_import_contact" type="object" class="btn-primary" />
+                        <button name="add_nha_mang" string="add_nha_mang" type="object" class="btn-primary" />
+                        <button name="add_quan_id_for_cho_tot" string="add_quan_id_for_cho_tot" type="object" class="btn-primary" />
+                        <button name="add_site_leech_tobds" string="add_site_leech_tobds" type="object" class="btn-primary" />
+                        <button name="add_min_max_avg_for_user" string="add_name_tong_hop" type="object" class="btn-primary" />
+                        <button name="add_min_max_avg_for_user" string="add_min_max_avg_for_user" type="object" class="btn-primary" />
+                        <button name="add_quan_lines_ids_to_poster" string="Add quan lines ids poster" type="object" class="btn-primary" />
+                        <button name="add_quan_lines_ids_to_poster_theo_siteleech_id" string="add_quan_lines_ids_to_poster_theo_siteleech_id" type="object" class="btn-primary" />
+                        <button name="add_site_leech_to_urlcate" string="add_site_leech_to_urlcate" type="object" class="btn-primary" />
+                        <button name="count_post_of_poster" string="count_post_of_poster" type="object" class="btn-primary" />
+                        <button name="insert_count_by_sql" string="insert_count_by_sql" type="object" class="btn-primary" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="getphoneposter_form" model="ir.ui.view">
+            <field name="name">get phone poster form</field>
+            <field name="model">bds.getphoneposter</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="is_report_for_poster"></field>
+                                <field name="filter_sms_or_filter_sql"></field>
+                                <field name="name"></field>
+                                <field name="sms_id"></field>
+                                <field name="nha_mang"></field>
+                                <field name="quan_id"></field>
+                                <field name="post_count_min"></field>
+                                <field name="avg_loc_less"></field>
+                                <field name="phuong_loc_ids"></field>
+                            </group>
+                            <group>
+                                <field name="len_poster"></field>
+                                <field name="test1"></field>
+                                <field name="kq"></field>
+                                <field name="danh_sach_doi_tac"></field>
+                                <field name="exclude_poster_ids"></field>
+                            </group>
+                            <group>
+                                <field name="phone_list"></field>
+                                <field name="len_posters_of_sms"></field>
+                                <field name="poster_ids"></field>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="error_action">
+            <field name="name">bds error</field>
+            <field name="res_model">bds.error</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="importcontact_action">
+            <field name="name">bds.importcontact</field>
+            <field name="res_model">bds.importcontact</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="mycontact_tree" model="ir.ui.view">
+            <field name="name">bds.mycontact</field>
+            <field name="model">bds.mycontact</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <field name="phone"></field>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="mycontact_action">
+            <field name="name">bds.mycontact</field>
+            <field name="res_model">bds.mycontact</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="quan_action">
+            <field name="name">quan action</field>
+            <field name="res_model">bds.quan</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record id="urlcate_list1" model="ir.ui.view">
+            <field name="name">bds.urlcate</field>
+            <field name="model">bds.urlcate</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"></field>
+                    <field name="url"></field>
+                    <field name="description"></field>
+                    <field name="siteleech_id"></field>
+                    <field name="web_last_page_number"></field>
+                    <field name="quan_id"></field>
+                    <field name="phuong_id"></field>
+                    <field name="current_page"></field>
+                    <field name="so_luong_luong"></field>
+                    <field name="luong_ids"></field>
+                </tree>
+            </field>
+        </record>
+        <record id="urlcate_form" model="ir.ui.view">
+            <field name="name">bds.urlcate</field>
+            <field name="model">bds.urlcate</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"></field>
+                            <field name="url"></field>
+                            <field name="description"></field>
+                            <field name="siteleech_id"></field>
+                            <field name="web_last_page_number"></field>
+                            <field name="quan_id"></field>
+                            <field name="phuong_id"></field>
+                            <field name="current_page"></field>
+                            <field name="so_luong_luong"></field>
+                            <field name="luong_ids"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="url_bds_menu_action">
+            <field name="name">quan action</field>
+            <field name="res_model">bds.urlcate</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="urlcate_list1"></field>
+        </record>
+        <!-- Top menu item 
     
-
-    <!-- server action to the one above -->
-    <!--
-    <record model="ir.actions.server" id="bds.action_server">
-      <field name="name">bds server</field>
-      <field name="model_id" ref="model_bds_bds"/>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
-          "res_model": self._name,
-        }
-      </field>
-    </record>
-    -->
-
-    <!-- Top menu item -->
-    
-    <menuitem name="bds" id="bds.menu_root"/>
-    
-    <!-- menu categories -->
-    
-    <menuitem name="Menu 1" id="bds.menu_1" parent="bds.menu_root"/>
-    <menuitem name="Menu 2" id="bds.menu_2" parent="bds.menu_root"/>
-    
-    <!-- actions -->
-    
-    <menuitem name="bds_menu" id="bds_menu" parent="bds.menu_1"
-              action="bds.action_window"/>
-     <menuitem name="poster menu" id="poster_menu" parent="bds.menu_1"
-              action="bds.poster_action"/>
-     <menuitem name="fetch_menu" id="fetch_menu" parent="bds.menu_1"
-              action="bds.fetch_action"/>
-              
-      <!-- 
+    <menuitem name="bds" id="bds.menu_root"/>-->
+        <!-- menu categories -->
+        <menuitem name="BDS" id="bds.menu_1" web_icon="bds,static/src/image/bds.png" />
+        <!-- actions -->
+        <menuitem name="bds_menu" id="bds_menu" parent="bds.menu_1" action="bds.action_window" />
+        <menuitem name="poster menu" id="poster_menu" parent="bds.menu_1" action="bds.poster_action" />
+        <menuitem name="fetch_menu" id="fetch_menu" parent="bds.menu_1" action="bds.fetch_action" />
+        <menuitem name="fault_menu" id="fault_menu" parent="bds.menu_1" action="bds.error_action" />
+        <menuitem name="importcontact_menu" id="importcontact_menu" parent="bds.menu_1" action="bds.importcontact_action" />
+        <menuitem name="mycontact_menu" id="mycontact_menu" parent="bds.menu_1" action="bds.mycontact_action" />
+        <menuitem name="getphoneposter..." id="getphoneposter__menu" parent="bds.menu_1" action="bds.getphoneposter_action" />
+        <menuitem name="Else" id="else_menu" parent="bds.menu_1" />
+        <menuitem name="Quận" id="quan_menu" parent="bds.else_menu" action="bds.quan_action" />
+        <menuitem name="urlbds" id="url_bds_menu" parent="bds.menu_1" action="url_bds_menu_action" />
+        <!-- 
     <menuitem name="Server to list" id="bds" parent="bds.menu_2"
               action="bds.action_server"/>
     -->
-  </data>
+    </data>
 </openerp>

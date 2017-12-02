@@ -1,4 +1,23 @@
 # -*- coding: utf-8 -*-
 
-l =  [(1L, None), (3, 53), (5, 52), (2, 49), (20, 1), (7, 50), (20, 47), (2, 51)]
-print reduce(lambda y,x:([x[1]]+y) if x[1]!=None else y,l,[] )
+import datetime
+import re
+# string = u'hôm nay 10:19'
+# new = string.replace(u'hôm nay',datetime.date.today().strftime('%d/%m/%Y'))
+# print new
+# new_date =  datetime.datetime.strptime(new,'%d/%m/%Y %H:%M')
+# print new_date
+string = u'hôm nay 10:19'
+string= u"ngày 25 tháng 07 07:15"
+string =u"hôm qua 18:59"
+if u'hôm nay' in string:
+    new = string.replace(u'hôm nay',datetime.date.today().strftime('%d/%m/%Y'))
+elif u'hôm qua' in string:
+    hom_qua_date = datetime.date.today() -  datetime.timedelta(days=1)
+    new = string.replace(u'hôm qua',hom_qua_date.strftime('%d/%m/%Y'))
+else:
+    
+    new=string.replace(u'ngày ','').replace(u' tháng ','/').replace(' ','/2017 ')
+new_date =  datetime.datetime.strptime(new,'%d/%m/%Y %H:%M')
+print new_date
+

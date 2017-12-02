@@ -7,7 +7,7 @@
         subtitle on modules listing or apps.openerp.com""",
 
     'description': """
-        Long description of module's purpose
+        NDT update 2510
     """,
 
     'author': "My Company",
@@ -28,12 +28,13 @@
         'views/assets.xml',
         'views/print.xml',
         'views/ca_truc.xml',
-        'views/view_ada.xml',
-        'views/wizard.xml',
+        #'views/view_ada.xml',
+        #'views/wizard.xml',
         'views/templates.xml',
         'demo/demo.xml',
+        'data/data.xml',
+        'security/trucca_security.xml',
         'security/ir.model.access.csv',
-        'security/trucca_security.xml'
 
     ],
     # only loaded in demonstration mode

@@ -1,16 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <data >
+<record id="cvi_personal_rule" model="ir.rule">
+        <field name="name">Sự kiện rule</field>
+        <field ref="model_cvi" name="model_id"/>
+        <field name="domain_force">[('create_uid','=',user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+  </record>
+   
+   
+   <record id="cvi_personal_2_rule" model="ir.rule">
+        <field name="name">Sự kiện rule 2</field>
+        <field ref="model_cvi" name="model_id"/>
+        <field name="domain_force">['|',('cty_id','child_of',[user.cty_id.id]),('cty_ids','child_of',[user.cty_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+   
+  <!-- 
+  <record id="user_personal_rule" model="ir.rule">
+        <field name="name">User rule</field>
+        <field ref="model_res_users" name="model_id"/>
+        <field name="domain_force">[('id','=',user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
+  </record>
+  
+   -->
+    
     <!-- Multi - Company Rules -->
 
-    <!-- Multi - Salesmen sales order assignation rules -->
+    <!-- Multi - Salesmen sales order assignation rules 
 
     <record id="trucca_personal_rule" model="ir.rule">
-        <field name="name">Truc ca</field>
-        <field ref="model_trucca" name="model_id"/>
+        <field name="name">Ca Trực rule</field>
+        <field ref="model_catruc" name="model_id"/>
         <field name="domain_force">['|',('create_uid','=',user.id),('create_uid','=',False)]</field>
         <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
     </record>
     
+    
+    <record id="cvi_personal_rule" model="ir.rule">
+        <field name="name">Sự kiện rule</field>
+        <field ref="model_cvi" name="model_id"/>
+        <field name="domain_force">[('create_uid','=',user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
+         <field name="perm_create" eval="False"/>
+    </record>
+ 
+    
+    <record id="cvi_personal_rule" model="ir.rule">
+        <field name="name">loai diem rule</field>
+        <field ref="model_loaidiem" name="model_id"/>
+ 		<field name="domain_force">[(1, '=', 1)]</field>  
+       <field name="groups" eval="[(4, ref('base.group_erp_manager'))]"/>
+        <field name="perm_read" eval="False"/>
+         <field name="perm_create" eval="False"/>
+    </record>
+       
+       
+     <record id="cvi_personal_rule" model="ir.rule">
+        <field name="name">loai diem rule</field>
+        <field ref="model_cvi" name="model_id"/>
+       <field name="domain_force"> ['|',('don_vi_id','=',user.cong_ty_id.id),('don_vi_id','=',False),('don_vi_id','child_of',[user.cong_ty_id.id])]</field>
+       <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False"/>
+    </record>
+    
+    <record id="read_thuviencongviec_rule" model="ir.rule">
+        <field name="name"></field>
+        <field ref="model_thuviencongviec" name="model_id"/>
+       <field name="domain_force"> [('create_uid','=',user.id)]</field>
+       <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    -->
 </data>
 </odoo>

@@ -4,690 +4,527 @@ import xlrd
 import time
 import datetime
 from odoo.exceptions import UserError
+import logging
+from odoo import  fields
+import base64
+from copy import deepcopy
+_logger = logging.getLogger(__name__)
 
-def get_merged_cell_val(sheet,row,col_index,is_return_primary_or_secondary=False):
-    is_merge_cell = False
-    for  crange in sheet.merged_cells:
-        rlo, rhi, clo, chi = crange
-        if clo ==col_index and chi == col_index + 1 and row == rlo:
-            readed_xl_val = sheet.cell_value(row,col_index)
-            is_merge_cell = True
-            if is_return_primary_or_secondary:
-                primary_cell_or_secondary_cell = 1
-            break
-        elif clo ==col_index and chi == col_index + 1 and row > rlo and row <rhi :
-            readed_xl_val = sheet.cell_value(rlo,col_index)
-            is_merge_cell = True
-            if is_return_primary_or_secondary:
-                primary_cell_or_secondary_cell = 2
-            break
-    if not is_merge_cell:
-            readed_xl_val = sheet.cell_value(row,col_index)
-            if is_return_primary_or_secondary:
-                primary_cell_or_secondary_cell = False
-    if is_return_primary_or_secondary:
-                return readed_xl_val,primary_cell_or_secondary_cell
-    else:
-        return readed_xl_val
-    
-    
-def get_id_of_object(mess_object):
-#     if isinstance(mess_object, list):
-#         mess_object_id =mess_object[0]
-#     elif isinstance(mess_object,int):
-#         mess_object_id = mess_object
-#     else:#mess_object được tạo từ wizard
-#         mess_object_id = mess_object.id
-    return mess_object.id
 
-def convert_object(self,class_name,mess_object):# mac dinh la mess_object ton tai
-    if isinstance(mess_object, list):
-        mess_object_id =mess_object[0]
-    elif isinstance(mess_object,int):
-        mess_object_id = mess_object
+def get_or_create_object_sosanh(self,class_name,search_dict,
+                                create_write_dict ={},is_must_update=False,noti_dict=None,not_active_item_search = False):
+    #print 'in get_or create fnc','search_dict',search_dict,'create_write_dict',create_write_dict
+    if not_active_item_search:
+        domain_list = ['|',('active','=',True),('active','=',False)]
     else:
-        return mess_object
-    mess_object = self.env[class_name].browse(mess_object_id)
-    return mess_object
-    
-def get_or_create_object(self,class_name,search_dict,create_write_dict ={},is_must_update=True):
-    domain_list = []
+        domain_list = []
+    if noti_dict =={}:
+        noti_dict['create'] = 0
+        noti_dict['update'] = 0
+        noti_dict['skipupdate'] = 0
     for i in search_dict:
         tuple_in = (i,'=',search_dict[i])
         domain_list.append(tuple_in)
+    print '***domain_list***',domain_list,'**create_write_dict**',create_write_dict
+    #print 'domain_list 1',domain_list
     searched_object  = self.env[class_name].search(domain_list)
+    print 'searched_object',searched_object
     if not searched_object:
-        current_number = create_number_dict.setdefault(class_name,0)
-        create_number_dict[class_name] = current_number +  1
         search_dict.update(create_write_dict)
-        update_search_dict = search_dict
-        created_object = self.env[class_name].create(update_search_dict)
-        created_object = convert_object(self,class_name,created_object)
-        return created_object
+        print
+        created_object = self.env[class_name].sudo().create(search_dict)
+        if noti_dict !=None:
+            noti_dict['create'] = noti_dict['create'] + 1
+        return_obj =  created_object
+        print 'created_object 1',created_object
     else:
-        searched_object = convert_object(self,class_name,searched_object)
-        is_write = False
-        for attr in create_write_dict:
-            domain_val = create_write_dict[attr]
-            exit_val = getattr(searched_object,attr)
-            exit_val = getattr(exit_val,'id',exit_val)
-            if exit_val ==None: #recorderset.id ==None when recorder sset = ()
-                exit_val=False
-            if unicode(exit_val) !=unicode(domain_val):
-                is_write = True
-                break
-        if is_write or is_must_update:
-            current_number = update_number_dict.setdefault(class_name,0)
-            update_number_dict[class_name] = current_number +  1
-            searched_object.write(create_write_dict)
+        if not is_must_update:
+            is_write = False
+            for attr in create_write_dict:
+                domain_val = create_write_dict[attr]
+                exit_val = getattr(searched_object,attr)
+                try:
+                    exit_val = getattr(exit_val,'id',exit_val)
+                    if exit_val ==None: #recorderset.id ==None when recorder sset = ()
+                        exit_val=False
+                except:#singelton
+                    pass
+                if isinstance(domain_val, datetime.date):
+                    exit_val = fields.Date.from_string(exit_val)
+                if exit_val !=domain_val:
+                    #print 'exit_val','domain_val',exit_val,domain_val
+                    is_write = True
+                    break
+            
         else:
-            current_number = get_number_dict.setdefault(class_name,0)
-            get_number_dict[class_name] = current_number +  1
-    return searched_object #re turn a object recorders
-           
-def  choose_between(sheet,row,master_col_index,replace_col_index,avail_val =None):
-    if replace_col_index !=None:
-        second_name_replace = sheet.cell_value(row,replace_col_index)
-        if check_variable_is_not_empty_string(second_name_replace):
-            master_name = second_name_replace
-            return master_name
-    if avail_val ==None:
-        master_name = get_merged_cell_val(sheet,row,master_col_index)
-    else:
-        return avail_val
-    return master_name
+            is_write = True
+        if is_write:
+            searched_object.sudo().write(create_write_dict)
+            if noti_dict !=None:
+                noti_dict['update'] = noti_dict['update'] + 1
+            #print 'searched_object 2'
+
+        else:#'update'
+            if noti_dict !=None:
+                noti_dict['skipupdate'] = noti_dict['skipupdate'] + 1
+        #print 'is_write***',is_write,'class_name',class_name,'noti_dict',noti_dict
+        return_obj = searched_object
+    #print 'domain_list 2',domain_list
+    return return_obj
+    
 EMPTY_CHAR = [u'',u' ',u'\xa0' ]
-
-
 def check_variable_is_not_empty_string(readed_xl_value):
-    if  isinstance(readed_xl_value,unicode) and (readed_xl_value not in EMPTY_CHAR ) or \
-        isinstance(readed_xl_value,float) or isinstance(readed_xl_value,int):
-        return True
-    else:
-        return False
-    
-def choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,class_name,col_index,col_replace_index,
-                                                 key_main = 'name',more_search={},update_dict={},avail_val=None,change_name_function = None):
-    thiet_bi_name = choose_between(sheet,row,col_index,col_replace_index,avail_val=avail_val)
-    
-    if check_variable_is_not_empty_string(thiet_bi_name):
-        if change_name_function:
-            thiet_bi_name = change_name_function (thiet_bi_name)
-        more_search.update({key_main:thiet_bi_name})
-        thiet_bi =  get_or_create_object(self,class_name,more_search,update_dict )
-        thiet_bi_id = get_id_of_object(thiet_bi)
-    else:
-        thiet_bi_id = False
-    return thiet_bi_id
-create_number_dict = {}
-update_number_dict = {}     
-get_number_dict = {}  
-
-
-def read_cell_and_check_false(sheet,row,more_padp_soi_index):
-    if more_padp_soi_index != None:
-        padp_soi_txt = sheet.cell_value(row,more_padp_soi_index)
-        if check_variable_is_not_empty_string(padp_soi_txt):
-            return padp_soi_txt
-        else:
+    if  isinstance(readed_xl_value,unicode) :
+        if readed_xl_value  in EMPTY_CHAR:
             return False
-    else:
-        return False
-    
-                              
-def simple_get_odf_dau_xa_and_ghi_chu(sheet,row,odf_dau_xa_index,ghi_chu_index):
-    odf_dau_xa = get_merged_cell_val(sheet,row,odf_dau_xa_index)
-    if check_variable_is_not_empty_string(odf_dau_xa):
-        odf_dau_xa = unicode(odf_dau_xa)
-    else:
-        odf_dau_xa = False
-    ghi_chu = get_merged_cell_val(sheet,row,ghi_chu_index)
-    if check_variable_is_not_empty_string(ghi_chu):
-        pass
-    else:
-        ghi_chu = False
-    return odf_dau_xa,ghi_chu
+        rs = re.search('\S',readed_xl_value)
+        if not rs:
+            return False
+    return True        
+  
+def print_diem(val):
+    #print 'diem',val,type(val)
+    return val
+def ham_tao_tvcvlines():
+    pass
+INVALIDS = ['No serial','N/A','NA','--','-','BUILTIN','0','1']
+#INVALIDS=map(lambda i:i.lower(),INVALIDS)
+def valid_sn_pn(sn_pn):
+    if isinstance(sn_pn, unicode):
+        if sn_pn in INVALIDS:
+            return False
+    return sn_pn
+        #sn_pn = sn_pn.lower()
+def sn_bi_false(sn_pn):
+    if isinstance(sn_pn, unicode):
+        if sn_pn in INVALIDS:
+            return sn_pn
+    return False
 
-def create_connect_ada_id(self,thiet_bi_txt,primary_cell_or_secondary_cell,create_write_dict):
-    if thiet_bi_txt:
-        connect_ada_khac_reg_rs = re.findall(r'((\d{1,2}),\s*(\d{1,2}) O\.{0,1}(\d{1,2}).{0,3}T.{0,2}(\d{1,2}))',thiet_bi_txt,re.I)
-        if connect_ada_khac_reg_rs:
-            ada_khac_findall_rs = connect_ada_khac_reg_rs[0]
-        else:
-            ada_khac_findall_rs = False
-    else:
-        return False
-    if ada_khac_findall_rs:
-        if primary_cell_or_secondary_cell==2:
-            connect_adaptor_number = ada_khac_findall_rs[2]
-        elif primary_cell_or_secondary_cell==1:
-            connect_adaptor_number = ada_khac_findall_rs[1]
-        else:
-            connect_adaptor_number = ada_khac_findall_rs[1]
-        connect_ada_data = {'tu_number':ada_khac_findall_rs[4],'adaptor_number':connect_adaptor_number,'odf_number':ada_khac_findall_rs[3]}
-        connect_ada = get_or_create_object(self,'ada', connect_ada_data, create_write_dict={})
-        connect_ada_id = get_id_of_object(connect_ada)
-        create_write_dict['ada_khac_id'] = connect_ada_id
-        if 'phia_sau_odf_la' in create_write_dict:
-            create_write_dict.update({'phia_truoc_odf_la':'ada'})
-        else:
-            create_write_dict.update({'phia_sau_odf_la':'ada'})
-    else:
-        connect_ada_id = False
-    return connect_ada_id
-
-def tram_ids_compute_for_soi(self,thiet_bi_txt,odf_dau_xa,soi_id,more_padp_txt):      
-    if soi_id:
-        find_tram_list =   []
-        if more_padp_txt:
-            find_tram_list.append(more_padp_txt)
-        elif thiet_bi_txt:
-            find_tram_list.append(thiet_bi_txt)
-        if odf_dau_xa:
-            find_tram_list.append(odf_dau_xa)
-        
-        tram_list = []
-        for x in find_tram_list:
-            huong_name_reg_rs = re.findall('LAN|PTR|LTK|DTP|CLH|VLG|CTO|HPU|TVH|BTE|TTI',x,re.I)
-            if huong_name_reg_rs:
-                for i in huong_name_reg_rs:
-                    tram_list.append(i)
-        tram_list_filter = []        
-        for huong_name in tram_list:   
-            if huong_name== u'ĐTP' or huong_name ==u'DTP' or huong_name == u'CLH':
-                huong_name = u'CLH'
-            huong_name = huong_name.upper()
-            if huong_name not in tram_list_filter:
-                tram_list_filter.append(huong_name)
-                tram = get_or_create_object(self,'tram',
-                                                 {'name':huong_name})
-                tram.write({'soi_ids':[(4,soi_id)]})
-def create_padp(self,soi_id,thiet_bi_txt,sheet,row,more_padp_soi_index=None):
-    thiet_bi_txt_add_padp_soi_s = []
-    if  SOI_OR_ODF_PADP_MODE =='soi' :
-        if soi_id !=False:
-            if more_padp_soi_index != None:
-                padp_soi_txt = sheet.cell_value(row,more_padp_soi_index)
-                if check_variable_is_not_empty_string(padp_soi_txt):
-                    thiet_bi_txt_add_padp_soi_s.extend(padp_soi_txt.split(';;'))
-#             if thiet_bi_txt:
-#                 thiet_bi_txts = thiet_bi_txt.split(';;')
-#                 thiet_bi_txt_add_padp_soi_s.extend(thiet_bi_txts)
-        else:
-            return None
-    if thiet_bi_txt:
-        thiet_bi_txts = thiet_bi_txt.split(u';;')
-        thiet_bi_txt_add_padp_soi_s.extend(thiet_bi_txts)
-    for count, thiet_bi_txt in enumerate( thiet_bi_txt_add_padp_soi_s):
-        thiet_bi_reg_rs = re.findall('240G|BB2|330G|ALU|HW|8800|Fujitsu|RN3',thiet_bi_txt,re.I)
-        if thiet_bi_reg_rs:
-            thiet_bi_name = thiet_bi_reg_rs[0]
-            if thiet_bi_name in ['BB2','330G','ALU']:
-                thiet_bi_name = 'BB2 ALU 330G'
-            elif thiet_bi_name in ['HW','8800']:
-                thiet_bi_name = 'HW 8800'
-            elif thiet_bi_name =='240G':
-                thiet_bi_name= 'Ciena 240G'
-            elif thiet_bi_name=='RN3':
-                thiet_bi_name = 'Ciena Ring Nam 3'
-            else:
-                thiet_bi_name = 'Fujitsu'
-            thiet_bi_id_object = get_or_create_object(self,'thietbi',
-                                                 {'name':thiet_bi_name,})
-            thiet_bi_id_id = get_id_of_object(thiet_bi_id_object)
-            
-            huong_name_reg_rs = re.findall(u'((PTR - CLH|LAN|PTR|LTK|DTP|ĐTP|CLH|DVLG|CTO|HPU|TVH|BTE|TTI)\s*#\s*\d{0,1})',thiet_bi_txt,re.I)
-            if not huong_name_reg_rs:
-                huong_name_reg_rs = re.findall('((PTR - CLH|LAN|PTR|LTK|DTP|CLH|VLG|CTO|HPU|TVH|BTE|TTI)\s*\d{0,1})',thiet_bi_txt,re.I)
-            if huong_name_reg_rs:
-                huong_name =  huong_name_reg_rs[0][0].strip()
-                huong_name = huong_name.replace('#',' ')
-                if huong_name== u'ĐTP' or huong_name ==u'DTP':
-                    huong_name = u'CLH'
-                huong_name = huong_name.upper()
-#                 if '-' not in huong_name:
-#                     huong_name = 'MTO - ' + huong_name
-                huong_id = get_or_create_object(self,'huong',
-                                                 {'name_theo_huong':huong_name,'thiet_bi_id':thiet_bi_id_id})
-                huong_id_id = get_id_of_object(huong_id)
-                
-                dp_reg_rs = re.findall('dp\s*\d',thiet_bi_txt,re.I)
-                if dp_reg_rs:
-                    dp_char = dp_reg_rs[0].upper()
-                else:
-                    dp_char = u'PA'
-                padp =  get_or_create_object(self,'padp', {'huong_id':huong_id_id,
-                                                         'pa_hay_dp_n':dp_char},{'pa_hay_dp_n':dp_char},is_must_update = True)
-#                 padp_id_id = get_id_of_object(padp_id)
-#                 padp = convert_object(self,'padp', padp_id)
-                #padp.write({'soi_ids':[(6,0,[soi_id])]})
-                if dp_char == u'PA':
-                    id_padp_id =get_id_of_object(padp)
-                    lichsuchay = get_or_create_object(self,'lichsuchay', {"padp_id": id_padp_id,'ghi_chu':u'Được tạo ra tự động khi import'}, #, "huong_id":huong_id_id 
-                                                      create_write_dict={"padp_id":id_padp_id},is_must_update = True)
-                if soi_id:
-#                     if u'<-->17,18 O1-T2 dp1 VLG 240G' in thiet_bi_txt:
-#                         raise ValueError('dfasdfdf',padp.name)
-                    padp.write({'soi_ids':[(4,soi_id)]})
-                    #padp.write({'soi_ids':[(6,0,[soi_id])]})
-def change_name_function_tuyen_cap(tc_name):
-    r = re.match(u'CÁP',tc_name,re.I)
-    if not r:
-        tc_name = u'CÁP ' +  tc_name
-    return tc_name
-
-
-def create_soi(self,sheet,row,create_write_dict,
-               tuyen_cap_chinh_col_index,
-               tuyen_cap_chinh_col_maybe_replace_index,
-               tuyen_cap_goc_index,
-               tuyen_cap_goc_replace_index,
-               soi_goc_index,tach_index,
-               stt_soi,
-               ):
-    tuyen_cap_chinh_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'tuyen_cap',tuyen_cap_chinh_col_index,tuyen_cap_chinh_col_maybe_replace_index,
-                                                 key_main = 'name',more_search={},update_dict={},change_name_function = change_name_function_tuyen_cap)
-    if tuyen_cap_chinh_id:
-        soi_goc_id=False
-        if tuyen_cap_goc_index !=None:
-            tuyen_cap_goc_id = \
-            choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'tuyen_cap',
-                            tuyen_cap_goc_index,tuyen_cap_goc_replace_index,key_main = 'name',change_name_function = change_name_function_tuyen_cap  )    
-            if tuyen_cap_goc_id: 
-                soi_goc_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'dai_tgg.soi',
-                            None,soi_goc_index,
-                             key_main = 'stt_soi',
-                             more_search = {'tuyen_cap':tuyen_cap_goc_id}, 
-                             avail_val=stt_soi
-                          )
-        if tach_index:
-            is_tach = sheet.cell_value(row,tach_index)
-            is_tach = check_variable_is_not_empty_string(is_tach)
-        else:
-            is_tach = False
-        soi_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'dai_tgg.soi',None,None,
-                             key_main = 'stt_soi',
-                             more_search={'tuyen_cap':tuyen_cap_chinh_id},
-                             update_dict={'soi_goc_id':soi_goc_id},
-                             avail_val=stt_soi)
-        if is_tach:
-            soi_id = False
-            create_write_dict['is_tach'] = True
-        
-    else:
-        soi_id = False
-        soi_goc_id = False
-#     create_write_dict['soi_id'] = soi_id
-    if soi_id !=False:
-        create_write_dict['phia_sau_odf_la'] = 'dai_tgg.soi'
-    return soi_id, soi_goc_id         
-SOI_OR_ODF_PADP_MODE = 'soi'                                                               
-def import_ada_prc(self):
-        global create_number_dict
-        global update_number_dict
-        global get_number_dict
-        os_choose = getattr(self,'os_choose',u'linux')
-        if os_choose ==u'win':
-            path = 'E:\SO DO LUONG\T6-2017\SO DO ODF.xls'#'D:\luong_TGG\O1T1.xls'
-        else:
-            path = '/media/sf_E_DRIVE/SO DO LUONG/T6-2017/' +  'SO DO ODF.xls'
-        excel = xlrd.open_workbook(path,formatting_info=True)#,formatting_info=True
-        sheet_names = excel.sheet_names()
-        excute = False
-        
-        only_sheet_mode = getattr(self,'only_sheet_mode','prc_type')
-        sheet_name_choose = getattr(self,'sheet_name_choose','prc_type')
-        if sheet_name_choose =='prc_type':
-            only_sheet_mode = 0
-            sheet_name_choose = 'O.4-T1'
-            #sheet_name_choose =False
-        for count_s,sheet_name in enumerate(sheet_names):
-            print '***sheet_name***',sheet_name
-            create_number_dict = {}
-            update_number_dict = {}
-            get_number_dict = {}
-            excute = only_sheet_mode and sheet_name ==sheet_name_choose or \
-                not only_sheet_mode and (sheet_name_choose ==False or sheet_name == sheet_name_choose or excute)
-            if not excute:
-                continue
-            
-            sheet = excel.sheet_by_name(sheet_name)
-            state = 'begin'
-            tuyen_cap_chinh_col_maybe_replace_index= None
-            tuyen_cap_goc_replace_index = None
-            soi_goc_index = None
-            equ_replace_index = None
-            thiet_bi_replace_index = None
-            tach_index= None
-            more_padp_soi_index = None
-            thuoc_tinh_phu_col_index  =None
-            for row in range(2,sheet.nrows):
-                if state == 'begin':
-                    pattern = u'O\.(\d+)[\s-]+T\.(\d+)' 
-                    rs = re.search(pattern, sheet.cell_value(row,0))
-                    if rs:
-                        o_value,t_value = int(rs.group(1)),int(rs.group(2))
-                        state = 'title row'
-                    else:
-                        raise ValueError(u' Không đúng định dạng title (not match format title)')
-                elif state == 'title row':
-                    for col in range(0,sheet.ncols):
-                        if  u'ADA' in sheet.cell_value(row,col):
-                            state = 'data'
-                            data_row = row + 1
-                            if col == 2:
-                                offset = 0
-                                tuyen_cap_goc_index = None
-                            elif col ==3:
-                                offset =1
-                                tuyen_cap_goc_index = 1
-                            
-                            tuyen_cap_chinh_col_index = 0
-                            ada_index = 2 + offset
-                            soi_index = 1 + offset
-                            thiet_bi_index = 3 + offset
-                            odf_dau_xa_index = 4 + offset
-                            ghi_chu_index = 5 + offset
-                            #continue
-                        if u'tc' in sheet.cell_value(row,col):
-                            tuyen_cap_chinh_col_maybe_replace_index = col
-                        if u'cap goc' in sheet.cell_value(row,col):
-                            tuyen_cap_goc_replace_index = col
-                        if u'soi goc' in sheet.cell_value(row,col):
-                            soi_goc_index = col
-                        if u'equ_replace' in sheet.cell_value(row,col):
-                            equ_replace_index = col
-                        if u'thiet_bi_replace' in sheet.cell_value(row,col):
-                            thiet_bi_replace_index = col
-                        if u'tach' in sheet.cell_value(row,col):
-                            tach_index = col
-                        if u'thuoc tinh phu' in sheet.cell_value(row,col):
-                            thuoc_tinh_phu_col_index = col
-                        if  SOI_OR_ODF_PADP_MODE =='soi' and u'padp soi' in sheet.cell_value(row,col):
-                            more_padp_soi_index = col
-                            #raise ValueError('adfdf',sheet_name)
-                elif state == 'data':
-                    print '<row>',row
-                    ada_data = {}
-                    create_write_dict = {}
-                    ada_data['odf_number'] = o_value
-                    ada_data['tu_number'] = t_value
-                    adaptor_val = get_merged_cell_val(sheet,row,ada_index)
-                    if row> data_row + 47:
-                        break
-                    if not check_variable_is_not_empty_string(adaptor_val):
-                        continue
-                    adaptor_number = str(int(adaptor_val))
-                    ada_data['adaptor_number'] = adaptor_number
-
-                    soi_or_thiet_bi_name = get_merged_cell_val(sheet,row,soi_index)
-                    try:#kiem tra interge hay khong
-                        stt_soi = int(soi_or_thiet_bi_name)
-                        mat_sau_mode = 'soi'
-                    except:
-                        if check_variable_is_not_empty_string(soi_or_thiet_bi_name):
-                            mat_sau_mode = 'port thiet bi'
-                        else:# con lai la rong 
-                            mat_sau_mode = None
-                    thuoc_tinh_phu = thuoc_tinh_phu_col_index and  sheet.cell_value(row,thuoc_tinh_phu_col_index)
-                    soi_id =False
-                    if mat_sau_mode == 'port thiet bi':
-                        thiet_bi_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'thietbi',0,equ_replace_index,
-                                                 key_main = 'name',more_search={},update_dict={})
-                        name_port_thiet_bi = soi_or_thiet_bi_name
-                        port_tb = get_or_create_object(self,'port.thiet_bi', {'port_name':name_port_thiet_bi,'thiet_bi_id':thiet_bi_id})
-                        port_thiet_bi_id = get_id_of_object(port_tb)
-                        create_write_dict['port_thiet_bi'] = port_thiet_bi_id
-                        #if port_thiet_bi_id !=False:
-                        create_write_dict['phia_sau_odf_la'] = 'port.thiet_bi'
-                    elif mat_sau_mode == 'soi':
-                        soi_id,soi_goc_id = create_soi(self,sheet,row,
-                                            create_write_dict,
-                                            tuyen_cap_chinh_col_index,
-                                            tuyen_cap_chinh_col_maybe_replace_index,
-                                            tuyen_cap_goc_index,
-                                            tuyen_cap_goc_replace_index,
-                                            soi_goc_index,
-                                            tach_index,
-                                            stt_soi,
-                                            )
-                    read_thiet_bi_s = get_merged_cell_val(sheet,row,thiet_bi_index,is_return_primary_or_secondary=True)
-                    thiet_bi_txt = read_thiet_bi_s[0]
-                    thiet_bi_txt_valid = check_variable_is_not_empty_string(thiet_bi_txt)
-                    if not thiet_bi_txt_valid:
-                        thiet_bi_txt = False
-                    primary_cell_or_secondary_cell = read_thiet_bi_s[1]
-                    if thiet_bi_replace_index:
-                        thiet_bi_replace_txt = sheet.cell_value(row,thiet_bi_replace_index)
-                        if check_variable_is_not_empty_string(thiet_bi_replace_txt):
-                            thiet_bi_txt=thiet_bi_replace_txt
-                    
-                    connect_ada_id = create_connect_ada_id(self,thiet_bi_txt,primary_cell_or_secondary_cell,create_write_dict)
-                    
-                    odf_dau_xa,ghi_chu = simple_get_odf_dau_xa_and_ghi_chu(sheet,row,odf_dau_xa_index,ghi_chu_index)
-                    
-                    
-                    more_padp_txt = read_cell_and_check_false(sheet,row,more_padp_soi_index)
-                    tram_ids_for_soi  = tram_ids_compute_for_soi(self,thiet_bi_txt,odf_dau_xa,soi_id,more_padp_txt)
-                    create_write_dict.update({
-                                                        'thietbi_char':thiet_bi_txt,
-                                                       'odf_dau_xa':odf_dau_xa,
-                                                       'ghi_chu':ghi_chu,
-                                                       'soi_id':soi_id,
-#                                                        'ada_khac_id':connect_ada_id,
-                                                       'soi_1_hay_soi_2':primary_cell_or_secondary_cell
-                                                       })
-                    
-                    if primary_cell_or_secondary_cell==2:
-                        create_write_dict.update({'couple_ada_id':primary_ada_id})
-                    
-                    ada_ret = get_or_create_object(self,'ada',ada_data,
-                                 create_write_dict =create_write_dict)
-                    
-                    # @(soi_ids.ada_out_id) ada_ids_char ->
-                    #@soi_id.ada_out_id (soi_id.ada_id,soi_id.ada_khac_id.soi_id) 
-                    if thuoc_tinh_phu and 'khong du phong' in thuoc_tinh_phu:
-                        pass
-                    else:
-                        create_padp(self,soi_goc_id or soi_id,thiet_bi_txt,sheet,row,more_padp_soi_index)
-                    #@ada_khac_id,@
-                                
-                    if primary_cell_or_secondary_cell==1:
-                        primary_ada_id = get_id_of_object(ada_ret)
-                    print '</row>'
-            get_or_create_object(self,'dai.log',{'sheet_name':sheet_name},
-                                 create_write_dict ={'create_number_dict':create_number_dict,
-                                                       'update_number_dict':update_number_dict,
-                                                       'get_number_dict':get_number_dict})
-        #file.close()
-def import_user (odoo_or_self_of_wizard):
+def sn_map(val):
+    rs = re.findall('Serial number.*?(\w+)',val)
+    if rs:
+        return rs[0]
+def import_strect(odoo_or_self_of_wizard):
     self = odoo_or_self_of_wizard
-    os_choose = getattr(self,'os_choose',u'linux')
-    if os_choose ==u'win':
-        path = 'E:\SO DO LUONG\ds.xls'#'D:\luong_TGG\O1T1.xls'
-    else:
-        path = '/media/sf_E_DRIVE/SO DO LUONG/' +  'DANH SACH LĐ DAI TGG 04-2017.xls'
-    excel = xlrd.open_workbook(path,formatting_info=True)#,formatting_info=True
-    sheet = excel.sheet_by_name(u'ĐÀI TGG')
-    name_index = 2
-    gioi_tinh_index  =3
-    ngay_sinh_index = 4
-    email_index = 5
-    so_dt_index = 6
-    tram_index = 7
-    chuc_danh_index = 8
-    for row in range(2,sheet.nrows):
-        name = sheet.cell_value(row,name_index)
-        #email = sheet.cell_value(row,email_index)
-        ngay_sinh = sheet.cell_value(row,ngay_sinh_index)
-        #print 'name',name
-        if check_variable_is_not_empty_string(ngay_sinh):
-            ngay_sinh =  datetime.datetime.strptime(ngay_sinh,'%d/%m/%Y')
-        else:
-            ngay_sinh = False
-        tram_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet, row,
-                                                                'tram', tram_index, None, key_main= 'name')
-        print 'tram_id',tram_id
-        user_id = choose_between_check_name_and_get_or_create_and_return_id(self,sheet,row,'res.users',
-                                                     email_index,None,
-                                                 key_main = 'login',more_search={},update_dict={'name':name,'password':'123456',
-                                                                                                           'date':ngay_sinh,'tram_id':tram_id}) 
-        print user_id
-    
-    
-def import_bd (odoo_or_self_of_wizard):
-    import base64
-    self = odoo_or_self_of_wizard 
     for r in self:
-            try:
-                recordlist = base64.decodestring(r.file)
-                excel = xlrd.open_workbook(file_contents = recordlist)
-                sheet = excel.sheet_by_index(0)
-            except Exception, e:
-                raise UserError(_('Error %s') % (e))
-            for col in range(0,sheet.ncols):
-                value = sheet.cell_value(0,col)
-                if  u'Tên cho quản lý' in value:
-                    ten_cho_quan_ly_index = col
-                    continue
-                if  u'Mã trạm' in value:
-                    ma_tram_index = col
-                    continue
-                if u'Thời gian bảo dưỡng' in value:
-                    thoi_gian_bd_index = col
-                    continue
-            for row in range(2,sheet.nrows):
-                ten_cho_quan_ly = sheet.cell_value(row,ten_cho_quan_ly_index)
-                ma_tram = sheet.cell_value(row,ma_tram_index)
-                thoi_gian_bd = sheet.cell_value(row,thoi_gian_bd_index)
-                if check_variable_is_not_empty_string(thoi_gian_bd):
-                    thoi_gian_bd =  datetime.datetime.strptime(thoi_gian_bd,'%d/%m/%Y')
-                else:
-                    thoi_gian_bd = False
-                vals = {'ten_cho_quan_ly':ten_cho_quan_ly,
-                            'ma_tram':ma_tram,
-                            'thoi_gian_bd':thoi_gian_bd,
-                            'type':type(thoi_gian_bd),
-                    
-                }
-                get_or_create_object(self,'bts',{'name':ten_cho_quan_ly}, {'ma_tram':ma_tram,'ngay_bao_duong':thoi_gian_bd} )
-                print vals
-                
-def import_bd_tuan(odoo_or_self_of_wizard):
-    import base64
-    self = odoo_or_self_of_wizard 
-    for r in self:
-            import_file = r.file_import
-            try:
-                recordlist = base64.decodestring(import_file)
-                excel = xlrd.open_workbook(file_contents = recordlist)
-                sheet = excel.sheet_by_index(0)
-            except Exception, e:
-                raise UserError(_('Error %s') % (e))
-            for col in range(0,sheet.ncols):
-                value = sheet.cell_value(0,col)
-                if  u'2G' in value:
-                    col_2G_index = col
-                    continue
-                if  u'3G' in value:
-                    col_3G_index = col
-                    continue
-                if u'NGÀY BẢO DƯỠNG' in value:
-                    thoi_gian_bd_index = col
-                    continue
-                if u'TUẦN BẢO DƯỠNG' in value:
-                    tuan_bao_duong_col_index = col
-                    continue
-            col_2G_index= 6
-            col_3G_index = 9
-            for row in range(2,sheet.nrows):
-                name_2g = sheet.cell_value(row,col_2G_index)
-                name_3g = sheet.cell_value(row,col_3G_index)
-                
-#                 if check_variable_is_not_empty_string(thoi_gian_bd):
-#                     thoi_gian_bd =  datetime.datetime.strptime(thoi_gian_bd,'%d/%m/%Y')
-#                 else:
-#                     thoi_gian_bd = False
-                
-                
-                
-                
-                tuan_bao_duong_char = sheet.cell_value(row,tuan_bao_duong_col_index)
-                if check_variable_is_not_empty_string(tuan_bao_duong_char):
-                    tuan_bao_duong_char = re.sub('W', '', tuan_bao_duong_char,0, re.I)
-                    tuan_bao_duong_char= int(tuan_bao_duong_char)
-                else:
-                    tuan_bao_duong_char = False
-                    
-                date_bd = False
-                week_number = False    
-                thoi_gian_bd_xl = sheet.cell_value(row,thoi_gian_bd_index)
-                
-
-                #ghi_chu = type(thoi_gian_bd)
-                is_mapping_2_week =False
-                if check_variable_is_not_empty_string(thoi_gian_bd_xl):
-                    if isinstance(thoi_gian_bd_xl, float):
-                        date_bd = xlrd.xldate.xldate_as_datetime(thoi_gian_bd_xl, excel.datemode)
-                        week_number = date_bd.isocalendar()[1]
-                        if week_number ==tuan_bao_duong_char and tuan_bao_duong_char != False:
-                            is_mapping_2_week = True
-                    else:
-                        date_bd= False
-                        thoi_gian_bd_xl = re.sub('\.|\s', '', thoi_gian_bd_xl,0, re.I)
-                        date_formats = ["%d-%m-%Y","%m-%d-%Y","%m/%d/%Y","%d/%m/%Y"]
-                        for d_f in date_formats:
-                            try:
-                                date_bd = datetime.datetime.strptime(thoi_gian_bd_xl,d_f)
-                                week_number = date_bd.isocalendar()[1]
-                                if week_number ==tuan_bao_duong_char and tuan_bao_duong_char !=False:
-                                    is_mapping_2_week = True
+            noti_dict = {}
+            recordlist = base64.decodestring(r.file)
+            xl_workbook = xlrd.open_workbook(file_contents = recordlist)
+            begin_row_offset = 0
+            if r.type_choose==u'640':
+                sheet_names = xl_workbook.sheet_names()
+                #sheet_names = ['VTN-137P-4-2']
+            for sheet_name in sheet_names:
+                sheet = xl_workbook.sheet_by_name(sheet_name)
+                if r.type_choose ==u'640':
+                    model_name = 'kknoc'
+                    field_dict= (
+                            ('sn',{'func':sn_map,'contain':u'Serial number','key':'Both','col_index':7}),
+                            
+#                             ('stt',{'func':None,'xl_title':u'stt','key':True}),
+#                             ('so_the',{'func':None,'xl_title':u'Số thẻ','key':True}),
+#                             ('pn',{'func':valid_sn_pn,'xl_title':u'Part-Number','key':True}),
+#                             ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
+#                             ('sn_false',{'func':sn_bi_false,'xl_title':None,'key':False,'col_index':7}),
+                            
+                            )
+                column_number = 0
+                key_search_dict = {}
+                update_dict = {}
+                data=''
+                for row in range(begin_row_offset,sheet.nrows):
+                        #print 'row',row
+                        read_value = sheet.cell_value(row,column_number)
+                        if read_value:
+                            if read_value:
+                                data = data + '\n' + read_value
+                            for field,field_attr in field_dict:
+                                func = field_attr['func']
+                                val = func (read_value)
+                                if val != None:
+                                    if field_attr['key']==True:
+                                        key_search_dict[field] = val
+                                    elif  field_attr['key']=='Both':
+                                        key_search_dict[field] = val
+                                        update_dict[field] = val
+                                    else:
+                                        update_dict[field] = val
                                     break
-                            except ValueError:
-                                continue
-                else:
-                    date_bd = False  
+                        else:
+                            if key_search_dict:
+                                update_dict['sheet_name'] = sheet_name
+                                update_dict['file_name'] = r.type_choose
+                                update_dict['data'] = data
+                                get_or_create_object_sosanh(self,model_name,key_search_dict,update_dict,True,noti_dict=noti_dict )
+                                key_search_dict = {}
+                                update_dict = {}
+                                data = ''
                     
-   
-                if check_variable_is_not_empty_string(name_2g):
-                    get_or_create_object(self,'lineimport',{'name_2g':name_2g,'importbdtuan_id':r.id},
-                                          {'name_3g':name_3g,'date_char':thoi_gian_bd_xl,
-                                           'name_2g':name_2g,# 'ghi_chu':ghi_chu,
-                                            'date':date_bd,'week_number':week_number,
-                                            'week_char':tuan_bao_duong_char,
-                                            'is_mapping_2_week':is_mapping_2_week
-                                            } )
+                     
+                    
+                 
+            r.create_number = noti_dict['create']
+            r.update_number = noti_dict['update']
+            r.skipupdate_number = noti_dict['skipupdate']
+        
+def importthuvien(odoo_or_self_of_wizard):
+    self = odoo_or_self_of_wizard
+    for r in self:
+            noti_dict = {}
+            recordlist = base64.decodestring(r.file)
+            #raise ValueError(type(r.file),r.file.name)
+            xl_workbook = xlrd.open_workbook(file_contents = recordlist)
+            begin_row_offset = 1
+            not_active_item_search  =False
+            if r.type_choose ==u'User':
+                sheet_names = ['Sheet1']
+            elif r.type_choose ==u'Công Ty':
+                sheet_names = [u'Công Ty']
+            elif r.type_choose ==u'Kiểm Kê':
+                sheet_names = [u'web']
+                begin_row_offset = 2
+            elif r.type_choose ==u'Vật Tư LTK':
+                sheet_names = [u'LTK']
+                begin_row_offset = 1
+            elif r.type_choose ==u'INVENTORY_240G':
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            elif r.type_choose ==u'INVENTORY_RING_NAM_CIENA':
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
                 
-def test_depend_onchange(odoo):       
-    id_trave = odoo.env['ada'].create({'name':'dauphong','truoc_hay_sau':u'sau',
-                                       'adaptor_number':2,
-                                       'odf_number':2,
-                                       'tu_number':2,
-                                       'test_3':'coi thu test 4,5 co gi thay doi ko',
-                                       #'test_2':'reassign test 2'
-                                       })
-    print 'id_trave',id_trave     
-def test_write_ada(odoo):
-    ada = odoo.env['ada'].browse(2152)
-    print ada.soi_id
-    kq = ada.write({'soi_id':9})
-    print kq
-def test_compare_object_id_with_id(odoo):
-    ada = odoo.env['ada'].search([('odf_number','=',1),('tu_number','=',2),('adaptor_number','=',1)])
-    ada = convert_object(odoo,'ada', ada)
-def test_map_thiet_bi_id_in_padp(odoo):
-    print odoo.env['padp'].search([]).mapped('thiet_bi_id')
-if __name__ =='__main__':
-    import odoorpc
-    odoo = odoorpc.ODOO('localhost', port=8069)
-    # Check available databases
-    print(odoo.db.list())
-    # Login
-    #odoo.login('db_name', 'user', 'passwd')
-    odoo.login('2606', 'nguyenductu@gmail.com', '228787')
-    #import_user(odoo)
-    #import_ada_prc(odoo) 
-    test_map_thiet_bi_id_in_padp(odoo)
-    #test_compare_object_id_with_id(odoo)
-           
-    #test_write_ada(odoo)         
+            if r.type_choose==u'Thư viện công việc':
+                not_active_item_search  =True
+                sheet_names = xl_workbook.sheet_names()
+                model_name = 'tvcv'
+                def is_active_f(val):
+                    return False if val ==u'na' else True
+                field_dict_goc= (
+                         ('name', {'func':None,'xl_title':u'Công việc','key':True,'break_when_xl_field_empty':True}),
+                         ( 'code',{'func':None,'xl_title':u'Mã CV','key':False }),
+                         ('do_phuc_tap',{'func':None,'xl_title':u'Độ phức tạp','key':False}),
+                         ('don_vi',{'model':'donvi','func':lambda x: unicode(x).title().strip(),'xl_title':u'Đơn vị','key':False}),
+                         ('thoi_gian_hoan_thanh',{'func':None,'xl_title':u'Thời gian hoàn thành','key':False}),
+                         ('dot_xuat_hay_dinh_ky',{'model':'dotxuathaydinhky','func':None,'xl_title':None,'key':False,'col_index':7}),
+                         ('diem',{'func':None,'xl_title':u'Điểm','key':False}),
+                         ('is_active',{'func':is_active_f,'xl_title':u'active','key':False,'col_index':'skip_if_not_found_column','use_fnc_even_cell_is_False':True}),
+                         ('active',{'func':is_active_f,'xl_title':u'active','key':False,'col_index':'skip_if_not_found_column','use_fnc_even_cell_is_False':True}),
+                         ('children_ids',{'model':'tvcv',
+                        'xl_title':u'Các công việc con',
+                        'key':False,'col_index':'skip_if_not_found_column','m2m':True,'dung_ham_de_tao_val_rieng':ham_tao_tvcvlines,
+                                                                                                    }),
+                        )
+                title_rows = range(1,4)
+                
+            elif r.type_choose ==u'User':
+                model_name = 'res.users'
+                field_dict= (
+                         ('name', {'func':None,'xl_title':u'Họ và Tên','key':False,'break_when_xl_field_empty':True}),
+                         ( 'login',{'func':None,'xl_title':u'Địa chỉ email','key':True ,'break_when_xl_field_empty':True}),
+                         ('phone',{'func':None,'xl_title':u'Số điện thoại','key':False}),
+                         #('tram_id',{'model':'tram','func':None,'xl_title':u'Trạm','key':False}),
+                         #('parent_id',{'model':'res.users','func':None,'xl_title':u'Cấp trên','key':False,'key_name':'login','split_first_item_if_comma':True}),
+                         ('cac_sep_ids',{'model':'res.users','func':None,'xl_title':u'Cấp trên','key':False,'key_name':'login','m2m':True}),
+                        ('cty_id',{'model':'congty','func':None,'xl_title':u'Bộ Phận','key':False}),
+                        )
+                title_rows = [1]
+            elif r.type_choose ==u'Công Ty':
+                model_name = 'congty'
+                field_dict= (
+                        ('name',{'func':None,'xl_title':u'công ty','key':True}),
+                        ('parent_id',{'model':'congty','func':None,'xl_title':u'parent_id','key':False}),
+                          ('cong_ty_type',{'model':'congtytype','func':None,'xl_title':u'cong_ty_type','key':False}),
+                        )
+                title_rows = [1]
+            elif r.type_choose ==u'Kiểm Kê':
+                model_name = 'kiemke'
+                field_dict= (
+                        ('kiem_ke_id',{'func':None,'xl_title':u'ID - Không sửa cột này','key':True}),
+                        ('ten_vat_tu',{'func':None,'xl_title':u'Tên tài sản','key':False}),
+                        ('so_the',{'func':None,'xl_title':u'Số thẻ','key':False}),
+                        ('pn',{'func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
+                        ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
+                        ('sn',{'func':valid_sn_pn,'xl_title':u'Serial number','key':False}),
+                        ('sn_false',{'func':sn_bi_false,'xl_title':u'Serial number','key':False}),
+                        ('ma_du_an',{'func':None,'xl_title':u'Mã dự án','key':False}),
+                        ('ten_du_an',{'func':None,'xl_title':u'Tên dự án','key':False}),
+                        ('ma_vach',{'func':None,'xl_title':u'Mã vạch','key':False}),
+                        ('trang_thai',{'func':None,'xl_title':u'Trạng thái','key':False}),
+                        ('hien_trang_su_dung',{'func':None,'xl_title':u'Hiện trạng sử dụng','key':False}),
+                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chú','key':False}),
+                        ('don_vi',{'func':None,'xl_title':u'Đơn vị','key':False}),
+                        ('vi_tri_lap_dat',{'func':None,'xl_title':u'Vị trí lắp đặt','key':False}),
+                        ('loai_tai_san',{'func':None,'xl_title':u'Loại tài sản','key':False}),
+                        )
+                title_rows = range(6,11)
+                begin_row_offset = 1
+            elif r.type_choose ==u'Vật Tư LTK':
+                model_name = 'vattu'
+                field_dict= (
+#                             ('name',{'func':None,'xl_title':u'Tên tài sản','key':True}),
+                      
+                        ('stt',{'func':None,'xl_title':u'STT','key':True}),
+                        ('phan_loai',{'func':None,'xl_title':u'Phân loại thiết bị','key':False}),
+                        ('pn',{'func':valid_sn_pn,'xl_title':u'Mã card (P/N)','key':False}),
+                        ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'Mã card (P/N)','key':False}),
+                        ('sn',{'func':valid_sn_pn,'xl_title':u'Số serial (S/N)','key':False}),
+                        ('loai_card',{'func':None,'xl_title':u'Loại card','key':False}),
+                        ('he_thong',{'func':None,'xl_title':u'Tên hệ thống thiết bị','key':False}),
+                        ('cabinet_rack',{'func':None,'xl_title':u'Tên tủ (Cabinet / rack)','key':False}),
+                        ('shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'Ngăn (shelf)','key':False}),
+                        ('stt_shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'Số thứ tự (trong shelf)','key':False}),
+                        ('slot',{'func':lambda i: str(int(i)) if isinstance(i,float) else i,'xl_title':u'Khe (Slot)','key':False}),
+                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chú - Mô tả thêm','key':False}),
+                        ('sn_false',{'func':sn_bi_false,'xl_title':u'Số serial (S/N)','key':False}),
+                        )
+                title_rows = range(0,7)
+            elif r.type_choose ==u'INVENTORY_240G':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial #',u'Serial Number'],'key':True}),
+#                             ('sn',{'func':None,'xl_title':[u'Serial #',u'Serial Number'],'key':True,'col_index':'skip_if_not_found_column'}),
+                        
+                        )
+                title_rows = [0]
+                
+            elif r.type_choose ==u'INVENTORY_RING_NAM_CIENA':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial No.',u'Serial Number'],'key':True}),
+                        ('pn',{'func':None,'xl_title':[u'PART  NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+                         ('sheet_name',{'func':None,'xl_title':[u'System Name',u'Network Element'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+            elif r.type_choose ==u'Inventory-120G':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial No',u'Serial #'],'key':True}),
+                        ('clei',{'func':None,'xl_title':[u'CLEI'],'key':True,'col_index':'skip_if_not_found_column'}),
+                         ('sheet_name',{'func':None,'xl_title':[u'NE Name',u'Shelf'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+                
+            elif r.type_choose ==u'Inventory-330G':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'SERIAL NUMBER'],'key':True}),
+                        ('pn',{'func':None,'xl_title':[u'UNIT PART NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+                         ('sheet_name',{'func':None,'xl_title':[u'NE'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            elif r.type_choose ==u'INVENTORY-FW4570':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial Number'],'key':True}),
+#                         ('pn',{'func':None,'xl_title':[u'UNIT PART NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+#                          ('sheet_name',{'func':None,'xl_title':[u'NE'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            elif r.type_choose ==u'INVETORY 1670':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'SERIAL NUMBER '],'key':True}),
+                        ('pn',{'func':None,'xl_title':[u'PART NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+                        ('sheet_name',{'func':None,'xl_title':[u'NODE'],'key':False,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            elif r.type_choose ==u'iventory hw8800':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial number'],'key':True}),
+#                         ('pn',{'func':None,'xl_title':[u'PART NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+                        ('sheet_name',{'func':None,'xl_title':[u'NE'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            elif r.type_choose ==u'iventory7500':
+                model_name = 'kknoc'
+                field_dict= (
+                        ('sn',{'func':None,'xl_title':[u'Serial No'],'key':True}),
+#                         ('pn',{'func':None,'xl_title':[u'PART NUMBER'],'key':True,'col_index':'skip_if_not_found_column'}),
+                        ('sheet_name',{'func':None,'xl_title':[u'TID'],'key':True,'col_index':'skip_if_not_found_column'})
+                        )
+                title_rows = [0]
+                sheet_names = xl_workbook.sheet_names()
+                begin_row_offset = 1
+            
+            
+            
+            
+            for sheet_name in sheet_names:
+                if r.type_choose==u'Thư viện công việc':
+                    field_dict = deepcopy(field_dict_goc)
+                #print 'sheet_name***',sheet_name
+                sheet = xl_workbook.sheet_by_name(sheet_name)
+                row_title_index =None
+#                 #print 'title_rows',title_rows
+                for row in title_rows:
+                    for col in range(0,sheet.ncols):
+                        try:
+                            value = unicode(sheet.cell_value(row,col))
+#                             #print 'value tt',value
+                        except Exception as e:
+                            raise ValueError(str(e),'row',row,'col',col,sheet_name)
+                        for field,field_attr in field_dict:
+                            if field_attr['xl_title'] ==None:
+                                continue
+                            if isinstance(field_attr['xl_title'],unicode) or  isinstance(field_attr['xl_title'],str):
+                                xl_title_s = [field_attr['xl_title']]
+                            else:
+                                xl_title_s =  field_attr['xl_title']
+                            for xl_title in xl_title_s:
+                                if xl_title == value:
+#                                     #print 'xl_title == value',xl_title
+                                    field_attr['col_index'] = col
+                                    if row_title_index ==None or  row > row_title_index:
+                                        row_title_index = row
+                                    break
+                                
+                                
+                for row in range(row_title_index+begin_row_offset,sheet.nrows):
+                    #print 'row_number',row,'sh',sheet_name
+                    key_search_dict = {}
+                    update_dict = {}
+                    if r.type_choose==u'Thư viện công việc':
+                        cong_viec_cate_id = get_or_create_object_sosanh(self,'tvcvcate',{'name':sheet_name},{} )
+                        update_dict['cong_viec_cate_id'] = cong_viec_cate_id.id
+                    elif r.type_choose==u'User':
+                        update_dict['password'] = '123456'
+                    elif r.type_choose==u'INVENTORY_240G':
+                        update_dict['sheet_name'] = sheet_name
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'INVENTORY_RING_NAM_CIENA':
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'Inventory-120G':
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'Inventory-330G':
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'INVENTORY-FW4570':
+                        key_search_dict['sheet_name'] = sheet_name
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'INVETORY 1670':
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'iventory hw8800':
+                        update_dict['file_name'] = r.type_choose
+                    elif r.type_choose==u'iventory7500':
+                        update_dict['file_name'] = r.type_choose
+                    continue_row = False
+                    for field,field_attr in field_dict:
+                        try:
+                            if field_attr['col_index'] =='skip_if_not_found_column':
+                                continue
+                        except KeyError as e:
+                            raise KeyError (u'Ko co col_index của field %s'% field)
+                        #print 'row,col',row,col
+                        col = field_attr['col_index']
+                        val = sheet.cell_value(row,col)
+                        #print 'val',val
+                        if isinstance(val, unicode):
+                            val = val.strip()
+                        if not check_variable_is_not_empty_string(val):
+                            val = False
+                        if 'break_when_xl_field_empty' in field_attr and val==False:
+                            continue_row = True
+                            break
+                        if 'dung_ham_de_tao_val_rieng' in field_attr and field_attr['dung_ham_de_tao_val_rieng'] and val != False:
+                            alist = val.split(',')
+                            len_alist = len(alist)
+                            diem_percent = 100/len(alist)
+                            key_name = field_attr.get('key_name','name')
+                            parent_id_name = key_search_dict['name']
+                            def afunc(val):
+                                i = val[0]
+                                val = val[1]
+                                val = val.strip().capitalize()
+                                name_tv_con = val  # + u'|Công Việc Cha: '  + key_search_dict['name']
+                                parent_id = get_or_create_object_sosanh (self,'tvcv',{'name':parent_id_name})
+                                if i ==len_alist-1:
+                                    diem_percent_l =100- (len_alist-1)*diem_percent
+                                else:
+                                    diem_percent_l = diem_percent
+                                    
+                                return get_or_create_object_sosanh(self,field_attr['model'],{key_name:name_tv_con,'parent_id':parent_id.id},{'diem_percent':diem_percent_l,
+                                                                                                                                             #'diem':diem,
+                                                                                                                                             'don_vi':update_dict['don_vi'],
+                                                                                                                                             'cong_viec_cate_id':update_dict['cong_viec_cate_id'],
+                                                                                                                                             'parent_id':parent_id.id
+                                                                                                                                             } )
+                            
+                            a_object_list = map(afunc,enumerate(alist))
+                            a_object_list = map(lambda x:x.id,a_object_list)
+                            val = [(6, False, a_object_list)]
+                        else:
+                            if 'func' in field_attr and field_attr['func']:
+                                if val !=False or field_attr.get('use_fnc_even_cell_is_False',False):
+                                    val = field_attr['func'](val)
+                            elif 'func_co_xai_another_field_value' in field_attr and field_attr['func_co_xai_another_field_value']:
+                                if val !=False:
+                                    val = field_attr['func_co_xai_another_field_value'](val,key_search_dict)
+                                
+                            if 'model' in field_attr  and field_attr['model'] and val !=False  :
+                                key_name = field_attr.get('key_name','name')
+                                if 'addtion_dict_template' in field_attr and field_attr['addtion_dict_template']:
+                                    addtion_dict_template = field_attr['addtion_dict_template']
+                                    addtion_dict = {}
+                                    for k,v in addtion_dict_template.items():
+                                        if isinstance(v, dict):
+                                            func_addtion_dict = v['func_addtion_dict']
+                                            value_of_k = func_addtion_dict(val)
+                                            addtion_dict[k] = value_of_k
+                                else:
+                                    addtion_dict ={}
+                                if 'm2m' not in field_attr or not field_attr['m2m']:
+                                    if ',' in val and field_attr.get('split_first_item_if_comma',False):
+                                        val = val.split(',')[0]
+                                    any_obj = get_or_create_object_sosanh(self,field_attr['model'],{key_name:val},addtion_dict )
+                                    val = any_obj.id
+                                else:
+                                    unicode_m2m_list = val.split(',')
+                                    unicode_m2m_list = filter( lambda r: len(r)>2 and r,unicode_m2m_list)
+                                    print '***unicode_m2m_list**',unicode_m2m_list
+                                    def create_or_get_one_in_m2m_value(val):
+                                        val = val.strip()
+                                        return get_or_create_object_sosanh(self,field_attr['model'],{key_name:val},addtion_dict )
+                                    
+                                    object_m2m_list = map(create_or_get_one_in_m2m_value, unicode_m2m_list)
+                                    m2m_ids = map(lambda x:x.id, object_m2m_list)
+                                    val = [(6, False, m2m_ids)]
+                                
+                        
+                        
+                        if field_attr['key']==True:
+                            key_search_dict[field] = val
+                        elif  field_attr['key']=='Both':
+                            key_search_dict[field] = val
+                            update_dict[field] = val
+                        else:
+                            update_dict[field] = val
+                    if continue_row:
+                        continue
+                    if key_search_dict:
+#                         #print 'key_search_dict',key_search_dict
+                        if not key_search_dict['login']:
+                            continue
+                        _logger.info(key_search_dict)
+                        _logger.info(update_dict)
+                        try:
+                            get_or_create_object_sosanh(self,model_name,key_search_dict,update_dict,True,noti_dict=noti_dict,not_active_item_search  =not_active_item_search)
+                        except:
+                            pass
+            r.create_number = noti_dict['create']
+            r.update_number = noti_dict['update']
+            r.skipupdate_number = noti_dict['skipupdate']
+            
+
+            
+            

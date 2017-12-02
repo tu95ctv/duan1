@@ -5,6 +5,6 @@
 # print currentdir,parentdir,inspect.getfile(inspect.currentframe())
 # sys.path.insert(0,parentdir)
 from . import models
-from . import adaptor
-from . import imports
+#from . import adaptor
+#from . import imports
 from . import tao_instance

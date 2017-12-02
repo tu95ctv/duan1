@@ -15,7 +15,7 @@
                 </form>
             </field>
         </record>
-        
+         
       <record id="import_quan_huyen_action" model="ir.actions.act_window">
             <field name="name">import qh</field>
             <field name="type">ir.actions.act_window</field>
