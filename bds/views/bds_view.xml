@@ -339,7 +339,7 @@
                             <field name="web_last_page_number"></field>
                             <field name="page_begin"></field>
                             <field name="set_page_end"></field>
-                            <field name="thread_step"></field>
+                            <field name="set_number_of_page_once_fetch"></field>
                             <field name="thread_number"></field>
                             <field name="link_number"></field>
                             <field name="update_link_number"></field>
@@ -349,7 +349,6 @@
                             <field name="phuong_ids"></field>
                             <field name="quan_ids"></field>
                             <field name="bds_ids"></field>
-                            <field name="test_cronfield"></field>
                             <field name="per_page"></field>
                             <field name="note"></field>
                         </group>
@@ -377,7 +376,6 @@
                     <field name="create_link_number"></field>
                     <field name="existing_link_number"></field>
                     <field name="bds_ids_quantity"></field>
-                    <field name="test_cronfield"></field>
                     <field name="per_page"></field>
                     <field name="note"></field>
                 </tree>

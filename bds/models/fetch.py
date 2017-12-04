@@ -401,7 +401,7 @@ def get_page_lists(self,url_id,is_fetch_in_cron):
         end_page = set_page_end if set_page_end <= last_page_from_website else last_page_from_website
     if is_fetch_in_cron:
         current_page = url_id.current_page
-        if  self.set_number_of_page_once_fetch ==0 or self.number_of_page_once_fetch==1:
+        if  self.set_set_number_of_page_once_fetch ==0 or self.set_number_of_page_once_fetch==1:
             if end_page <2:
                 page_lists = [1]
                 last_page_in_once_fetch=1
@@ -412,10 +412,10 @@ def get_page_lists(self,url_id,is_fetch_in_cron):
                 page_lists = [1,last_page_in_once_fetch]
         else:
             begin = current_page + 1
-            end = current_page   + self.number_of_page_once_fetch
+            end = current_page   + self.set_number_of_page_once_fetch
             if begin>end_page:
                 begin  = 1
-                end = self.number_of_page_once_fetch
+                end = self.set_number_of_page_once_fetch
             else:
                 if end > end_page:
                     end =  end_page
@@ -423,10 +423,10 @@ def get_page_lists(self,url_id,is_fetch_in_cron):
             page_lists = range(begin,end+1)
     else:
         begin = url_id.current_page + 1
-        end = url_id.current_page   + self.number_of_page_once_fetch
+        end = url_id.current_page   + self.set_number_of_page_once_fetch
         if begin>end_page:
             begin  = 1
-            end = self.number_of_page_once_fetch
+            end = self.set_number_of_page_once_fetch
         else:
             if end > end_page:
                 end =  end_page
@@ -483,8 +483,7 @@ def fetch1(self,note=False,is_fetch_in_cron = False):
     for page_int in int_page_lists:
         page_handle(self, page_int, url_id, number_notice_dict)
     url_id.write({'current_page':last_page_in_once_fetch})
-    if self.is_fetch_circle:
-        self.current_url_id_circle_fetch = current_url_id_circle_fetch
+    self.current_url_id_circle_fetch = current_url_id_circle_fetch
         
     self.create_link_number=number_notice_dict['create_link_number']
     self.update_link_number =number_notice_dict["update_link_number"]
