@@ -1,3 +1,5 @@
 # -*- coding: utf-8 -*-
-val = False
-filter(lambda r: len(r)>2 and r, sequence)
+d = {1:3}
+c = d.update({2:3})
+print d
+print c

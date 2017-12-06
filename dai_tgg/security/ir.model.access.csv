@@ -5,7 +5,7 @@ access_dai_tgg_cvi,dai_tgg.cvi,model_cvi,base.group_user,1,1,1,1
 access_dai_tgg_comment,dai_tgg.comment,model_comment,base.group_user,1,1,1,1
 access_dai_tgg_tvcv,dai_tgg.tvcv,model_tvcv,base.group_user,1,0,0,0
 access_dai_tgg_tvcv_for_thaydoi_group,dai_tgg.tvcv_for_thaydoi,model_tvcv,dai_tgg.thay_doi_thu_vien_group,1,1,1,1
-access_dai_tgg_congty,dai_tgg.congty,model_congty,base.group_user,1,1,1,1
+access_dai_tgg_congty,dai_tgg.congty,model_congty,base.group_user,1,0,0,0
 access_dai_tgg_importthuvien,dai_tgg.importthuvien,model_importthuvien,base.group_user,1,1,1,1
 access_dai_tgg_congtytype,dai_tgg.congtytype,model_congtytype,base.group_user,1,1,1,1
 access_dai_tgg_cvitype,dai_tgg.cvitype,model_cvitype,base.group_user,1,1,1,1

@@ -383,7 +383,7 @@
                             <group>
                                 <field name="id"></field>
                                 <field name="name"></field>
-                                <field name="user_id"></field>
+                                <field name="user_id" readonly="1"></field>
                                 <field name="cty_id"></field>
                                 <field name="cty_ids" ></field>
                               
@@ -392,13 +392,13 @@
                                 <field name="doitac_ids"></field>
                                 <field name="file_ids"></field>
                                   <field name="cd_parent_id" readonly="1" invisible="context.get('you_at_gd_form')"></field>
-                                <field name="gd_parent_id" readonly="1"></field>
+                                <field name="gd_parent_id"></field>
                             </group>
                         </group>
                         <group>
                             <group>
                                 <field name="ngay_bat_dau"></field>
-                                <field name="gio_bat_dau" readonly="context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}"></field>
+                                <field name="gio_bat_dau" readonly="context.get('you_at_gd_form') or context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}"></field>
                                 <field name="gio_ket_thuc" readonly="context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}"></field>
                                 <field name="duration"></field>
                                 <field name="slncl"></field>
@@ -413,8 +413,8 @@
                                <field name="don_vi"></field>
                                 <field name="so_luong" 
                                 attrs="{'readonly':['|',('cam_sua','=',True),'&amp;',('id','>',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)]}"
-                               ></field><!--  readonly="context.get('you_at_gd_form')" -->
-                               <field name="so_lan"
+                               readonly="context.get('you_at_gd_form')"></field><!--  readonly="context.get('you_at_gd_form')" -->
+                               <field name="so_lan" readonly="context.get('you_at_gd_form')"
                                 attrs="{'readonly':['|',('cam_sua','=',True),'&amp;',('id','>',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)]}"
                                ></field>
                             </group>
@@ -425,7 +425,7 @@
                                 <field name="diem_goc"></field>
                                 <field name="diemtt"></field>
                                 <field name="percent_diemtt"
-                                 attrs="{'readonly':['|',('cam_sua_do_chot','=',True),('cam_sua_do_chot','=',True)],'invisible':[('cd_parent_id','=',False),('cd_children_ids','=',[])]}"></field>
+                                 attrs="{'readonly':['|',('cam_sua_do_chot','=',True),('cam_sua','=',True)],'invisible':[('cd_parent_id','=',False),('cd_children_ids','=',[])]}"></field>
                                 <field name="diemtc"></field>
                                 <field name="valid_diemtc_conclusion"></field>
                             </group>
@@ -438,7 +438,7 @@
                             <group name="admin1" attrs="{'invisible':[('is_admin','=',False)]}">
                                 <field name="valid_diemtc"></field>
                                 <field name="diem_remain_gd" ></field>
-                               <field name="sum_cd_con"></field>
+                               	<field name="sum_cd_con"></field>
                                 <field name="sum_gd_con"></field>
                                 <field name="valid_cd" ></field>
                                 <field name="valid_gd" ></field>
@@ -463,11 +463,12 @@
                                     <tree decoration-danger="not valid_diemtc" editable="bottom">
                                         <!--  editable="bottom"  -->
                                         <field name="cd_parent_id" invisible="1"></field>
-                                        <field name="user_id"></field>
+                                        <field name="cam_sua" invisible="1"></field>
+                                        <field name="user_id"  attrs="{'readonly':[('cam_sua','=',True)]}" domain="['|','|',('cty_id','=',parent.cty_id),('cty_id','child_of',parent.cty_id),('cty_id','parent_of',parent.cty_id)]"></field>
                                         <field name="gio_bat_dau"></field>
                                         <field name="gio_ket_thuc" invisible="1"></field>
                                         <field name="slncl"></field>
-                                        <field name="tvcv_id"></field>
+                                        <field name="tvcv_id" readonly="context.get('you_at_cd_form')"></field>
                                         <field name="loai_cvi"></field>
                                         <field name="noi_dung"></field>
                                         <field name="valid_cd" invisible="1"></field>
@@ -475,7 +476,7 @@
                                         <field name="so_luong"></field>
                                         <field name="so_lan"></field>
                                         <field name="diemtt"></field>
-                                        <field name="percent_diemtt"></field>
+                                        <field name="percent_diemtt" attrs="{'readonly':[('cam_sua','=',True)]}" ></field>
                                         <field name="diemtc"></field>
                                         <field name="percent_diemtc"></field>
                                         <field name="diemld"></field>
@@ -500,7 +501,6 @@
                                         <field name="valid_gd" invisible="1"></field>
                                         <field name="so_luong"></field>
                                         <field name="so_lan"></field>
-                                        <field name="slncl"></field>
                                         <field name="cd_children_ids" />
                                         <field name="diem_goc" invisible="1"></field>
                                         <field name="diemtt"></field>
@@ -539,14 +539,10 @@
                     <field name="cty_ids" ></field>
                     <field name="tvcv_id"></field>
                     <field name="loai_cvi"></field>
-                    <field name="cd_parent_id" invisible="context.get('you_at_cd_form') or context.get('you_at_gd_form')"></field>
-                    <field name="cd_children_ids" invisible="context.get('you_at_cd_form')"></field>
-                    <field name="file_ids"></field>
-                    <field name="gd_parent_id" invisible="context.get('you_at_cd_form')"></field>
-                    <field name="gd_children_ids" invisible="context.get('you_at_cd_form') or context.get('you_at_gd_form')"></field>
+                    
                     <!--<field name="cd_children_ids" widget="many2many_tags" invisible="context.get('you_at_cd_form')"></field> -->
                     <field name="ctr_ids"></field>
-                    <field name="slncl"></field>
+                    <field name="slncl" ></field>
                     <field name="diem_tvi"></field>
                     <field name="don_vi"></field>
                     <field name="so_luong"></field>
@@ -560,6 +556,11 @@
                     <field name="is_sep" invisible="1"></field>
                     <field name="percent_diemtc" attrs="{'invisible' : [('is_sep', '=', False)]}"></field>
                     <field name="diemld" attrs="{'invisible' : [('is_sep', '=', False)]}" />
+                    <field name="cd_parent_id" ></field>
+                    <field name="cd_children_ids" ></field>
+                    <field name="file_ids"></field>
+                    <field name="gd_parent_id" ></field>
+                    <field name="gd_children_ids" ></field>
                     <field name="write_date"></field>
                 </tree>
             </field>
@@ -804,6 +805,7 @@
                         <button name="map_noc_voi_kiemke" string="map NOC voi KK" type="object" class="btn-primary" />
                         <button name="get_tram_from_sheet_name" string="get_tram_from_sheet_name" type="object" class="btn-primary" />
                         <button name="trigger" string="trigger" type="object" class="btn-primary" />
+                        <button name="test_code" string="test_code" type="object" class="btn-primary" />
                     </header>
                     <sheet>
                         <group>
@@ -813,6 +815,7 @@
                             </group>
                             <group>
                                 <field name="type_choose"></field>
+                                <field name="log"></field>
                                 <field name="create_number"></field>
                                 <field name="update_number"></field>
                                 <field name="skipupdate_number"></field>
