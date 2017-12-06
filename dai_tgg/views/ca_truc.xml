@@ -31,7 +31,7 @@
                         <notebook>
                             <page string="Sự Cố">
                                 <!--  <field name="su_co_ids" domain="['|',('ctr_ids','=',active_id),'&amp;',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]"  context="{'active_id_4':active_id}"></field> -->
-                                <field name="su_co_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
+                                <field name="su_co_ids" context="{'active_ctr_id':active_id,'you_at_suco_form':True}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
                                 <!--  <field name="su_co_ids" domain="[('ctr_ids','=',active_id)]"></field> -->
                                 <!--  <field name="su_co_ids" domain="[('gio_ket_thuc','=',False)]"  context="{'active_id_4':active_id}"></field>-->
                                 <!--    <field name="su_co_ids"   context="{'active_id_4':active_id}"></field> -->
@@ -40,7 +40,7 @@
                                 <field name="cvi_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
                             </page>
                             <page string="Sự Vụ">
-                                <field name="su_vu_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
+                                <field name="su_vu_ids" context="{'active_ctr_id':active_id, 'you_at_suco_form':True}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('cty_id','=',cty_id)]"></field>
                             </page>
                         </notebook>
                     </sheet>
@@ -111,6 +111,7 @@
                         </group>
                         <group>
                             <field name="comment_ids"></field>
+                            <field name="ctr_ids" required = "not context.get('you_at_suco_form')"  invisible="context.get('you_at_suco_form')"></field>
                         </group>
                     </sheet>
                 </form>
@@ -184,8 +185,10 @@
             	 -->
             </field>
         </record>
+        
         <record model="ir.ui.view" id="suvu_list">
             <field name="name">Sự Vụ Tree</field>
+            <field name="priority" eval="1"></field>
             <field name="model">suvu</field>
             <field name="type">tree</field>
             <field name="inherit_id" ref="suco_list" />
@@ -196,11 +199,35 @@
                 </field>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="suvu_lay_cac_view_ke_thua_action">
+        
+        <record id="suvu_list_with_no_create" model="ir.ui.view">
+            <field name="name">sự vụ Form 2</field>
+            <field name="priority" eval="2"></field>
+            <field name="model">suvu</field>
+            <field name="inherit_id" ref="suvu_list"></field>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[@name='sucotree1']" position="attributes">
+                    <attribute name="create">false
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+        
+        
+        <record model="ir.actions.act_window" id="suvu_action">
             <field name="name">Sự Vụ</field>
             <field name="res_model">suvu</field>
             <field name="view_mode">tree,form</field>
         </record>
+        
+        <record id="suvu_action_nocreate_act_view" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence" />
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="dai_tgg.suvu_list_with_no_create" />
+            <field name="act_window_id" ref="dai_tgg.suvu_action" />
+        </record>
+        
         <!-- END SU VU -->
         <!-- USER -->
         <record id="user_search" model="ir.ui.view">
@@ -823,6 +850,9 @@
                                 <field name="write_date"></field>
                                 <field name="thong_bao_khac"></field>
                                 <field name="trigger_model"></field>
+                                
+                              
+                                
                             </group>
                         </group>
                     </sheet>
@@ -1505,7 +1535,7 @@
         <menuitem name="Ca trực Menu" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="1"></menuitem>
         <menuitem name="Ca trực" id="ctr_menu" parent="ctrmenu_menu" action="ctr_action" sequence="1"></menuitem>
         <menuitem id="suco_menu" parent="ctrmenu_menu" action="suco_action" sequence="2"></menuitem>
-        <menuitem id="suvu_ke_thua_menu" parent="ctrmenu_menu" action="suvu_lay_cac_view_ke_thua_action" sequence="4"></menuitem>
+        <menuitem id="suvu_ke_thua_menu" parent="ctrmenu_menu" action="suvu_action" sequence="4"></menuitem>
         <menuitem name=" Công Việc menu" id="menu_menu" parent="ctrtvcv_icon" sequence="2"></menuitem>
         <menuitem name=" Công Việc" id="cvi_menu" parent="menu_menu" action="action_dynamic_domain" sequence="1"></menuitem>
         <menuitem id="tvcv_menu" parent="menu_menu" action="thuvientvcv_action" sequence="2"></menuitem>

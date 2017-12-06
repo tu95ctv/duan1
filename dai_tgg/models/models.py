@@ -573,7 +573,7 @@ class Cvi(models.Model):
     ALLOW_WRITE_FIELDS_DIFF_USER = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtc']
     IS_CAM_SUA_DO_CHOT = True
     name = fields.Char(compute='name_',store=True)
-    ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
+    ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày',translate=True)
     gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu ', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc')
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
@@ -1364,6 +1364,10 @@ class ImportThuVien(models.Model):
     trigger_model = fields.Selection([(u'kiemke',u'kiemke'),
                                     (u'vattu',u'vattu'),(u'kknoc',u'kknoc')])
     log = fields.Text()
+#     f1 = fields.Boolean()
+#     f2 = fields.Boolean()
+#     f3 = fields.Boolean()
+#     f4 = fields.Boolean()
     def test_code(self):
 #         fields= self.env['cvi']._fields
 #         self.log = fields
@@ -1371,13 +1375,13 @@ class ImportThuVien(models.Model):
 #             print type(field),field.type,type(field.type)
         not_active_include_search = True
         if not_active_include_search:
-            domain_not_active = []
+            domain_not_active = [('f1','=','a')]
         else:
             domain_not_active = []
-        domain = []
-        domain = expression.AND([domain_not_active, domain])
-        res = self.env['tvcv'].search(domain)
-        self.log = len(res)
+        domain = [('f2','=','a'),('f3','=','a')]
+        domain = expression.OR([domain_not_active, domain])
+#         res = self.env['tvcv'].search(domain)
+        self.log =domain
     def trigger(self):
         if self.trigger_model:
             count = 0
