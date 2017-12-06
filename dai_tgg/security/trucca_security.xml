@@ -18,6 +18,13 @@
         <field name="groups" eval="[(4, ref('base.group_user'))]"/>
   </record>
    
+   
+    <record id="suco_rule" model="ir.rule">
+        <field name="name">Sự cố rule</field>
+        <field ref="model_suco" name="model_id"/>
+        <field name="domain_force">['|',('cty_id','child_of',[user.cty_id.id]),('cty_ids','child_of',[user.cty_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
   <!-- 
   <record id="user_personal_rule" model="ir.rule">
         <field name="name">User rule</field>

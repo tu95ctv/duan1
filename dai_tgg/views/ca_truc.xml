@@ -105,6 +105,7 @@
                             <group>
                                 <field name="loai_su_co_id" attrs="{'readonly':[('cam_sua','=',True)]}"></field>
                                 <field name="noi_dung" attrs="{'readonly':[('cam_sua','=',True)]}" ></field>
+                               <field name="cty_ids"></field> 
                                <field name="doitac_ids"></field> 
                             </group>
                         </group>
