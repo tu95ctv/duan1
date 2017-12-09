@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "dai_tgg",
+    'name': "kiemke",
 
     'summary': """
         Short (1 phrase/line) summary of the module's purpose, used as
         subtitle on modules listing or apps.openerp.com""",
 
     'description': """
-        NDT update 2510
+        Long description of module's purpose
     """,
 
     'author': "My Company",
@@ -20,22 +20,13 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','base_import','report','product'],
+    'depends': ['base','stock'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        'views/assets.xml',
-        'views/print.xml',
-        'views/ca_truc.xml',
-        #'views/view_ada.xml',
-        #'views/wizard.xml',
+        'views/views.xml',
         'views/templates.xml',
-        'demo/demo.xml',
-        'data/data.xml',
-        'security/trucca_security.xml',
-        'security/ir.model.access.csv',
-
     ],
     # only loaded in demonstration mode
     'demo': [

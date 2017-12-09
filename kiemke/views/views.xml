@@ -1,0 +1,72 @@
+<openerp>
+  <data>
+  
+  <record id="all_tranfer_tree_inherit" model="ir.ui.view">
+            <field name="name">all_tranfer_tree_inherit</field>
+        <!--   <field name="priority" eval="2"></field> -->  
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"></field>
+            <field name="arch" type="xml">
+                <field name="backorder_id" position="after">
+                    <field name="create_date"/>
+                </field>
+            </field>
+        </record>
+        
+    <!-- explicit list view definition -->
+    <!--
+    <record model="ir.ui.view" id="kiemke.list">
+      <field name="name">kiemke list</field>
+      <field name="model">kiemke.kiemke</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+    -->
+
+    <!-- actions opening views on models -->
+    <!--
+    <record model="ir.actions.act_window" id="kiemke.action_window">
+      <field name="name">kiemke window</field>
+      <field name="res_model">kiemke.kiemke</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    -->
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="kiemke.action_server">
+      <field name="name">kiemke server</field>
+      <field name="model_id" ref="model_kiemke_kiemke"/>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    <!--
+    <menuitem name="kiemke" id="kiemke.menu_root"/>
+    -->
+    <!-- menu categories -->
+    <!--
+    <menuitem name="Menu 1" id="kiemke.menu_1" parent="kiemke.menu_root"/>
+    <menuitem name="Menu 2" id="kiemke.menu_2" parent="kiemke.menu_root"/>
+    -->
+    <!-- actions -->
+    <!--
+    <menuitem name="List" id="kiemke.menu_1_list" parent="kiemke.menu_1"
+              action="kiemke.action_window"/>
+    <menuitem name="Server to list" id="kiemke" parent="kiemke.menu_2"
+              action="kiemke.action_server"/>
+    -->
+  </data>
+</openerp>
